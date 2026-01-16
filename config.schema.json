@@ -1,0 +1,463 @@
+{
+  "pluginAlias": "OpenWrt",
+  "pluginType": "platform",
+  "singular": true,
+  "fixArrays": true,
+  "strictValidation": true,
+  "headerDisplay": "This plugin works with OpenWrt Devices based on Dashboard API. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
+  "footerDisplay": "For documentation please see [GitHub repository](https://github.com/grzegorz914/homebridge-openwrt-control).",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "devices": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "title": "Network",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "placeholder": "OpenWrt"
+            },
+            "host": {
+              "title": "IP/Hostname",
+              "type": "string",
+              "placeholder": "192.168.1.10 or openwrt.local",
+              "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}|([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(\\.([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?))*)$"
+            },
+            "auth": {
+              "title": "Authorization",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false
+                },
+                "user": {
+                  "title": "User",
+                  "type": "string",
+                  "placeholder": "User",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].auth.enable === true;"
+                  }
+                },
+                "passwd": {
+                  "title": "Password",
+                  "type": "string",
+                  "placeholder": "Password",
+                  "format": "password",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].auth.enable === true;"
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "required": [
+                      "enable"
+                    ],
+                    "properties": {
+                      "enable": {
+                        "const": true
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "user",
+                      "passwd"
+                    ]
+                  }
+                }
+              ]
+            },
+            "displayType": {
+              "title": "Accessory",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0,
+              "description": "Accessory type for Home app",
+              "anyOf": [
+                {
+                  "title": "Disabled",
+                  "enum": [
+                    0
+                  ]
+                },
+                {
+                  "title": "Enabled",
+                  "enum": [
+                    1
+                  ]
+                }
+              ]
+            },
+            "accessPoint": {
+              "title": "Access point",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "description": "Here Enable/Disable this access point control."
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Name",
+                  "description": "Here set the Name to be displayed in Homebridge/HomeKit for this access point.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices[0]].accessPoint.enable === true;"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "Here enable/disable the accessory name as a prefix for the access point name.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices[0]].accessPoint.enable === true;"
+                  }
+                },
+                "sensor": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "description": "Here Enable/Disable sensor for every ssid.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].accessPoint.enable === true;"
+                  }
+                }
+              }
+            },
+            "refreshInterval": {
+              "title": "Refresh Interval (sec)",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 60,
+              "default": 5,
+              "description": "Here set the data refresh time in (sec)."
+            },
+            "log": {
+              "title": "Log",
+              "type": "object",
+              "properties": {
+                "deviceInfo": {
+                  "title": "Device Info",
+                  "type": "boolean",
+                  "default": true,
+                  "description": "This enable logging device info by every connections device to the network."
+                },
+                "success": {
+                  "title": "Success",
+                  "type": "boolean",
+                  "default": true
+                },
+                "info": {
+                  "title": "Info",
+                  "type": "boolean",
+                  "default": false
+                },
+                "warn": {
+                  "title": "Warn",
+                  "type": "boolean",
+                  "default": true
+                },
+                "error": {
+                  "title": "Error",
+                  "type": "boolean",
+                  "default": true
+                },
+                "debug": {
+                  "title": "Debug",
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            },
+            "restFul": {
+              "title": "RESTFul",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "This enable RESTful server."
+                },
+                "port": {
+                  "title": "Port",
+                  "type": "integer",
+                  "placeholder": 3000,
+                  "description": "Here set the listening Port for RESTful server.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].restFul.enable == true;"
+                  }
+                }
+              }
+            },
+            "mqtt": {
+              "title": "MQTT",
+              "type": "object",
+              "properties": {
+                "enable": {
+                  "title": "Enable",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "This enable MQTT client."
+                },
+                "host": {
+                  "title": "IP/Hostname",
+                  "type": "string",
+                  "placeholder": "192.168.1.20 or mqtt.local",
+                  "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}|([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(\\.([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?))*)$",
+                  "description": "Here set the IP/Hostname of MQTT Broker.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable == true;"
+                  }
+                },
+                "port": {
+                  "title": "Port",
+                  "type": "integer",
+                  "placeholder": 1883,
+                  "description": "Here set the port of MQTT Broker.",
+                  "condition": {
+                    "functionBody": "return  model.devices[arrayIndices].mqtt.enable == true;"
+                  }
+                },
+                "clientId": {
+                  "title": "Client ID",
+                  "type": "string",
+                  "placeholder": "client id",
+                  "description": "Here optional set the Client ID of MQTT Broker.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable == true;"
+                  }
+                },
+                "prefix": {
+                  "title": "Prefix",
+                  "type": "string",
+                  "placeholder": "home",
+                  "description": "Here set the prefix.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable == true;"
+                  }
+                },
+                "auth": {
+                  "title": "Authorization",
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "title": "Enable",
+                      "type": "boolean",
+                      "description": "This enable authorization for MQTT Broker."
+                    },
+                    "user": {
+                      "title": "User",
+                      "type": "string",
+                      "placeholder": "user",
+                      "description": "Here set the user of MQTT Broker.",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].mqtt.auth.enable === true;"
+                      }
+                    },
+                    "passwd": {
+                      "title": "Password",
+                      "type": "string",
+                      "placeholder": "password",
+                      "description": "Here set the password of MQTT Broker.",
+                      "format": "password",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].mqtt.auth.enable === true;"
+                      }
+                    }
+                  },
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable == true;"
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "required": [
+                          "enable"
+                        ],
+                        "properties": {
+                          "enable": {
+                            "const": true
+                          }
+                        }
+                      },
+                      "then": {
+                        "required": [
+                          "user",
+                          "passwd"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "required": [
+                      "enable"
+                    ],
+                    "properties": {
+                      "enable": {
+                        "const": true
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "host"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "host",
+            "displayType"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "displayType": {
+                    "enum": [
+                      1
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "host"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "key": "devices",
+      "type": "tabarray",
+      "title": "{{ value.name || 'Device' }}",
+      "items": [
+        "devices[].name",
+        "devices[].host",
+        "devices[].displayType",
+        {
+          "key": "devices[]",
+          "type": "section",
+          "title": "Advanced Settings",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            {
+              "key": "devices[]",
+              "type": "tabarray",
+              "title": "{{ value.title }}",
+              "items": [
+                {
+                  "key": "devices[].accessPoint",
+                  "title": "Access Point",
+                  "items": [
+                    "devices[].accessPoint.enable",
+                    "devices[].accessPoint.name",
+                    "devices[].accessPoint.namePrefix",
+                    "devices[].accessPoint.sensors"
+                  ]
+                },
+                {
+                  "key": "devices[].auth",
+                  "title": "Authorization",
+                  "items": [
+                    "devices[].auth.enable",
+                    "devices[].auth.user",
+                    {
+                      "key": "devices[].auth.passwd",
+                      "type": "password"
+                    }
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "Devices",
+                  "items": [
+                    "devices[].refreshInterval"
+                  ]
+                },
+                {
+                  "key": "devices[].log",
+                  "title": "Log",
+                  "items": [
+                    "devices[].log.deviceInfo",
+                    "devices[].log.success",
+                    "devices[].log.info",
+                    "devices[].log.warn",
+                    "devices[].log.error",
+                    "devices[].log.debug"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "title": "External Integrations",
+                  "items": [
+                    {
+                      "key": "devices[]",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[].restFul",
+                          "title": "RESTFul",
+                          "items": [
+                            "devices[].restFul.enable",
+                            "devices[].restFul.port"
+                          ]
+                        },
+                        {
+                          "key": "devices[].mqtt",
+                          "title": "MQTT",
+                          "items": [
+                            "devices[].mqtt.enable",
+                            "devices[].mqtt.host",
+                            "devices[].mqtt.port",
+                            "devices[].mqtt.clientId",
+                            "devices[].mqtt.prefix",
+                            {
+                              "key": "devices[].mqtt.auth",
+                              "title": "Authorization",
+                              "items": [
+                                "devices[].mqtt.auth.enable",
+                                "devices[].mqtt.auth.user",
+                                {
+                                  "key": "devices[].mqtt.auth.passwd",
+                                  "type": "password"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

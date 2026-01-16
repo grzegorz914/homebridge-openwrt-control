@@ -1,0 +1,53 @@
+{
+    "displayName": "OpenWrt Control",
+    "name": "homebridge-openwrt-control",
+    "version": "0.0.1-beta.4",
+    "description": "Homebridge plugin to control OpenWrt flashed devices.",
+    "license": "MIT",
+    "author": "grzegorz914",
+    "maintainers": [
+        "grzegorz914"
+    ],
+    "homepage": "https://github.com/grzegorz914/homebridge-openwrt-control#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/grzegorz914/homebridge-openwrt-control.git"
+    },
+    "bugs": {
+        "url": "https://github.com/grzegorz914/homebridge-openwrt-control/issues"
+    },
+    "type": "module",
+    "exports": {
+        ".": "./index.js"
+    },
+    "files": [
+        "src",
+        "index.js",
+        "config.schema.json",
+        "package.json",
+        "CHANGELOG.md",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "homebridge": "^1.8.0 || ^2.0.0 || ^2.0.0-beta.80 || ^2.0.0-alpha.63",
+        "node": "^20 || ^22 || ^24 || ^25"
+    },
+    "dependencies": {
+        "axios": "^1.13.2"
+    },
+    "keywords": [
+        "homebridge",
+        "homebridge-plugin",
+        "homekit",
+        "openwrt",
+        "accesspoint",
+        "router",
+        "switch"
+        
+    ],
+    "contributors": [],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    }
+}
