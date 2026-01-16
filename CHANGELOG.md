@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
-## [0.0.1] - (16.1.2025)
+## [0.0.1] - (16.01.2026)
+
+## Changes
 
 - initial release (WLAN control)
