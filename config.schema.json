@@ -4,7 +4,7 @@
   "singular": true,
   "fixArrays": true,
   "strictValidation": true,
-  "headerDisplay": "This plugin works with OpenWrt Devices based on Dashboard API. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
+  "headerDisplay": "This plugin works with OpenWrt flashed devices. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
   "footerDisplay": "For documentation please see [GitHub repository](https://github.com/grzegorz914/homebridge-openwrt-control).",
   "schema": {
     "type": "object",
@@ -13,7 +13,7 @@
         "type": "array",
         "items": {
           "type": "object",
-          "title": "Network",
+          "title": "Device",
           "properties": {
             "name": {
               "title": "Name",
@@ -96,7 +96,7 @@
                 }
               ]
             },
-            "accessPoint": {
+            "apDevice": {
               "title": "Access point",
               "type": "object",
               "properties": {
@@ -111,7 +111,7 @@
                   "placeholder": "Name",
                   "description": "Here set the Name to be displayed in Homebridge/HomeKit for this access point.",
                   "condition": {
-                    "functionBody": "return model.devices[arrayIndices[0]].accessPoint.enable === true;"
+                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
                   }
                 },
                 "namePrefix": {
@@ -119,15 +119,51 @@
                   "type": "boolean",
                   "description": "Here enable/disable the accessory name as a prefix for the access point name.",
                   "condition": {
-                    "functionBody": "return model.devices[arrayIndices[0]].accessPoint.enable === true;"
+                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
                   }
                 },
                 "sensor": {
+                  "title": "Sensor",
+                  "type": "boolean",
+                  "description": "Here Enable/Disable sensor for every SSID.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
+                  }
+                }
+              }
+            },
+            "swDevice": {
+              "title": "Access point",
+              "type": "object",
+              "properties": {
+                "enable": {
                   "title": "Enable",
                   "type": "boolean",
-                  "description": "Here Enable/Disable sensor for every ssid.",
+                  "description": "Here Enable/Disable this switch control."
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string",
+                  "placeholder": "Name",
+                  "description": "Here set the Name to be displayed in Homebridge/HomeKit for this switch.",
                   "condition": {
-                    "functionBody": "return model.devices[arrayIndices].accessPoint.enable === true;"
+                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
+                  }
+                },
+                "namePrefix": {
+                  "title": "Prefix",
+                  "type": "boolean",
+                  "description": "Here enable/disable the accessory name as a prefix for the port name.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
+                  }
+                },
+                "sensor": {
+                  "title": "Sensor",
+                  "type": "boolean",
+                  "description": "Here Enable/Disable sensor for every port.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
                   }
                 }
               }
@@ -369,13 +405,23 @@
               "title": "{{ value.title }}",
               "items": [
                 {
-                  "key": "devices[].accessPoint",
+                  "key": "devices[].apDevice",
                   "title": "Access Point",
                   "items": [
-                    "devices[].accessPoint.enable",
-                    "devices[].accessPoint.name",
-                    "devices[].accessPoint.namePrefix",
-                    "devices[].accessPoint.sensors"
+                    "devices[].apDevice.enable",
+                    "devices[].apDevice.name",
+                    "devices[].apDevice.namePrefix",
+                    "devices[].apDevice.sensor"
+                  ]
+                },
+                {
+                  "key": "devices[].swDevice",
+                  "title": "Switch",
+                  "items": [
+                    "devices[].swDevice.enable",
+                    "devices[].swDevice.name",
+                    "devices[].swDevice.namePrefix",
+                    "devices[].swDevice.sensor"
                   ]
                 },
                 {

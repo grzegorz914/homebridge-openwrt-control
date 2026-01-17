@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
+## [0.0.2] - (17.01.2026)
+
+## Changes
+
+- added RESTFul and MQTT external integration (work in progress)
+- refactor and optimizations
+- cleanup
+
 ## [0.0.1] - (16.01.2026)
 
 ## Changes
