@@ -27,10 +27,18 @@
                         "passwd": "password"
                     },
                     "displayType": 1,
-                    "accessPoint": [
+                    "apDevice": [
                         {
                             "enable": false,
                             "name": "My Access Point",
+                            "namePrefix": false,
+                            "sensor": false
+                        }
+                    ],
+                    "swDevice": [
+                        {
+                            "enable": false,
+                            "name": "My Switch",
                             "namePrefix": false,
                             "sensor": false
                         }
