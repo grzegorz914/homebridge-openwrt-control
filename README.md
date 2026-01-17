@@ -28,9 +28,9 @@
 ## About The Plugin
 
 * Access Points:
-  * Control `ON/OFF` every SSID.
-  * Monitor with Sensors for every `SSIDs`.
-* Siri can be used to switch ON/OFF SSIDs, Policy, Ports.
+  * Control `ON/OFF` all exposed SSID.
+  * Contact sensor monitor for all `SSIDs`.
+* Siri can be used to switch ON/OFF SSIDs.
 * Home automations and shortcuts can be used for all functions.
 
 ## Configuration
