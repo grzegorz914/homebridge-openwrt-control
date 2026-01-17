@@ -52,11 +52,16 @@
 | `auth.enable` | If enabled, authorizatins credentials will be used for login. |
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
-| `accessPoint{}` | Volume object. |
-| `accessPoint.enable` | Here enable access point `SSIDs` control. |
-| `accessPoint.name` | Here set Your own volume/mute control name or leave empty. |
-| `accessPoint.namePrefix` | Here enable accessory name as a prefix for volume control name. |
-| `accessPoint.sensor` | Here enable access point `SSIDs` sensors. |
+| `apDevice{}` | Access Point. |
+| `apDevice.enable` | Here enable access point `SSIDs` control. |
+| `apDevice.name` | Here set Your own access point name or leave empty. |
+| `apDevice.namePrefix` | Here enable accessory name as a prefix for access point name. |
+| `apDevice.sensor` | Here enable access point `SSIDs` sensors. |
+| `swDevice{}` | Switch object. |
+| `swDevice.enable` | Here enable switch `Ports` control. |
+| `swDevice.name` | Here set Your own name or for switch leave empty. |
+| `swDevice.namePrefix` | Here enable accessory name as a prefix for switch name. |
+| `swDevice.sensor` | Here enable switch `Ports` sensors. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |
