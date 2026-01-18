@@ -38,7 +38,7 @@ class OpenWrtPlatform {
         //check enabled devices
         const configuredDevices = [];
         if (apDevice.enable) configuredDevices.push(0);
-        if (swDevice.enable) configuredDevices.push(1);
+        //if (swDevice.enable) configuredDevices.push(1); not supported yet
         if (configuredDevices.length === 0) continue;
 
         //log config

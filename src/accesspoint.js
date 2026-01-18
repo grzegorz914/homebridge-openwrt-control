@@ -38,24 +38,27 @@ class AccessPoint extends EventEmitter {
             this.informationService?.updateCharacteristic(Characteristic.FirmwareRevision, openWrtInfo.systemInfo.release?.version);
 
             // update state
-            const ssids = openWrtInfo.ssids;
+            const ssids = openWrtInfo.wirelessSsids;
             for (let i = 0; i < ssids.length; i++) {
-                const ssid = ssids[i];
-                const name = ssid.name;
-                const state = ssid.state;
-                const serviceName = this.namePrefix ? `${this.name} ${name}` : name;
+                const radio = ssids[i].device;
+                const frequency = ssids[i].frequency;
+                const name = ssids[i].name;
+                const state = ssids[i].disabled;
+                const serviceName = this.namePrefix ? `${this.name} ${name} ${frequency}` : `${name} ${frequency}`;
                 this.services?.[i]
                     ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                    .updateCharacteristic(Characteristic.On, state);
+                    .updateCharacteristic(Characteristic.On, !state);
 
                 this.sensorServices?.[i]
                     ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                    .updateCharacteristic(Characteristic.ContactSensorState, state);
+                    .updateCharacteristic(Characteristic.ContactSensorState, !state);
 
                 if (this.logInfo) {
-                    this.emit('info', `Name: ${ssid.name}`);
-                    this.emit('info', `State: ${ssid.state}`);
-                    this.emit('info', `Mode: ${ssid.mode}`);
+                    this.emit('info', `Radio: ${radio}`);
+                    this.emit('info', `Frequency: ${frequency}`);
+                    this.emit('info', `Name: ${name}`);
+                    this.emit('info', `State: ${state}`);
+                    this.emit('info', `Mode: ${ssids[i].mode}`);
                 }
             }
 
@@ -174,39 +177,40 @@ class AccessPoint extends EventEmitter {
             //services
             this.services = [];
             this.sensorServices = [];
-            for (const ssid of this.openWrtInfo.ssids) {
+            for (const ssid of this.openWrtInfo.wirelessSsids) {
+                const radio = ssid.device; //radio name
+                const frequency = ssid.frequency; //frequency
                 const name = ssid.name;
-                if (this.logDebug) this.emit('debug', `prepare ssid: ${name} service`);
+                if (this.logDebug) this.emit('debug', `prepare ssid: ${name} ${radio} service`);
 
-                const serviceName = this.namePrefix ? `${accessoryName} ${name}` : name;
-                const service = accessory.addService(Service.Switch, serviceName, `service${name}`);
+                const serviceName = this.namePrefix ? `${accessoryName} ${name} ${frequency}` : `${name} ${frequency}`;
+                const service = accessory.addService(Service.Switch, serviceName, `service${name}${radio}`);
                 service.addOptionalCharacteristic(Characteristic.ConfiguredName);
                 service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                 service.getCharacteristic(Characteristic.On)
                     .onGet(async () => {
-                        const state = ssid.state;
-                        if (this.logInfo) this.emit('message', `SSID: ${name}, state: ${state ? 'Enabled' : 'Disabled'}`);
+                        const state = !ssid.disabled;
+                        if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, state: ${state ? 'Enabled' : 'Disabled'}`);
                         return state;
                     })
                     .onSet(async (state) => {
                         try {
-                            state = state ? true : false;
-                            await this.openWrt.send('ssid', name, state);
-                            if (this.logInfo) this.emit('message', `SSID: ${name}, set State: ${state ? 'Enabled' : 'Disabled'}`);
+                            await this.openWrt.send('apDevice', radio, name, state);
+                            if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, set State: ${state ? 'Enabled' : 'Disabled'}`);
                         } catch (error) {
-                            this.emit('warn', `SSID: ${name}, set state error: ${error}`);
+                            this.emit('warn', `SSID: ${name}, radio: ${radio}, set state error: ${error}`);
                         }
                     });
                 this.services.push(service);
 
                 if (this.sensorsEnabled) {
-                    if (this.logDebug) this.emit('debug', `prepare ssid: ${name} sensor service`);
-                    const sensorService = accessory.addService(Service.ContactSensor, serviceName, `sensorService${name}`);
+                    if (this.logDebug) this.emit('debug', `prepare ssid: ${name} ${radio} sensor service`);
+                    const sensorService = accessory.addService(Service.ContactSensor, serviceName, `sensorService${name}${radio}`);
                     sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     sensorService.getCharacteristic(Characteristic.ContactSensorState)
                         .onGet(async () => {
-                            const state = ssid.state;
+                            const state = !ssid.disabled;
                             return state;
                         });
                     this.sensorServices.push(sensorService);
@@ -232,7 +236,7 @@ class AccessPoint extends EventEmitter {
                 this.emit('devInfo', `Kernel: ${this.openWrtInfo.systemInfo.kernel}`);
                 this.emit('devInfo', `Firmware: ${this.openWrtInfo.systemInfo.release?.description}`);
                 this.emit('devInfo', `Target: ${this.openWrtInfo.systemInfo.release?.target}`);
-                this.emit('devInfo', `SSIDs: ${this.openWrtInfo.ssids.length}`);
+                this.emit('devInfo', `SSIDs: ${this.openWrtInfo.wirelessSsids.length}`);
                 this.emit('devInfo', `----------------------------------`);
             }
 

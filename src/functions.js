@@ -42,16 +42,5 @@ class Functions {
             throw wrappedError;
         }
     }
-
-    async findIfaceBySsid(status, targetSsid) {
-        for (const radio of Object.values(status.radios)) {
-            for (const iface of Object.values(radio.interfaces)) {
-                if (iface.ssid === targetSsid) {
-                    return iface;
-                }
-            }
-        }
-        return null;
-    }
 }
 export default Functions

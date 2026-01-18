@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
+## [0.0.3] - (18.01.2026)
+
+## Changes
+
+- added support to use same ssids names on different radios
+- fix ssid control
+- refactor and optimizations
+- cleanup
+
 ## [0.0.2] - (17.01.2026)
 
 ## Changes
