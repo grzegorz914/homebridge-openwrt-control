@@ -10,7 +10,7 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "OpenWrt",
+        "title": "Platform",
         "type": "string",
         "default": "OpenWrt"
       },
