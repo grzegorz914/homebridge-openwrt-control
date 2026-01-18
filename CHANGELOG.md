@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
+## [0.0.4] - (18.01.2026)
+
+## Changes
+
+- added direct controll function over extra buttons
+- added RESTFul and MQTT first functionality
+- refactor and optimizations
+- config schema updated
+- readme updated
+- cleanup
+
 ## [0.0.3] - (18.01.2026)
 
 ## Changes

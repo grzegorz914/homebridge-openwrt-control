@@ -43,6 +43,14 @@
                             "sensor": false
                         }
                     ],
+                    "buttons": [
+                        {
+                            "displayType": 0,
+                            "name": "System Reboot",
+                            "command": 0,
+                            "namePrefix": false
+                        }
+                    ],
                     "log": {
                         "deviceInfo": true,
                         "success": true,

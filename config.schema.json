@@ -168,6 +168,106 @@
                 }
               }
             },
+            "buttons": {
+              "title": "Button",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayType": {
+                    "title": "Display Type",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "anyOf": [
+                      {
+                        "title": "Disabled",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Outlet",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "Switch",
+                        "enum": [
+                          2
+                        ]
+                      }
+                    ],
+                    "description": "Here select display type in HomeKit app"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "placeholder": "Button name",
+                    "description": "Here set Your own name."
+                  },
+                  "command": {
+                    "title": "Command",
+                    "type": "number",
+                    "description": "Here select the control command.",
+                    "anyOf": [
+                      {
+                        "title": "System Reboot",
+                        "enum": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "Network Reload",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "WiFi Reload",
+                        "enum": [
+                          2
+                        ]
+                      }
+                    ],
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].buttons[arrayIndices[1]].displayType > 0;"
+                    }
+                  },
+                  "namePrefix": {
+                    "title": "Prefix",
+                    "type": "boolean",
+                    "description": "Here enable the accessory name as a prefix for button name.",
+                    "condition": {
+                      "functionBody": "return model.devices[arrayIndices[0]].buttons[arrayIndices[1]].displayType > 0;"
+                    }
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "displayType"
+                      ],
+                      "properties": {
+                        "displayType": {
+                          "enum": [
+                            1,
+                            2
+                          ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "command"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
             "refreshInterval": {
               "title": "Refresh Interval (sec)",
               "type": "integer",
@@ -422,6 +522,26 @@
                     "devices[].swDevice.name",
                     "devices[].swDevice.namePrefix",
                     "devices[].swDevice.sensor"
+                  ]
+                },
+                {
+                  "key": "devices[]",
+                  "type": "section",
+                  "title": "Buttons",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
+                    {
+                      "key": "devices[].buttons",
+                      "type": "tabarray",
+                      "title": "{{ value.name || 'Button' }}",
+                      "items": [
+                        "devices[].buttons[].displayType",
+                        "devices[].buttons[].name",
+                        "devices[].buttons[].command",
+                        "devices[].buttons[].namePrefix"
+                      ]
+                    }
                   ]
                 },
                 {

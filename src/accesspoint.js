@@ -19,6 +19,7 @@ class AccessPoint extends EventEmitter {
         this.name = config.apDevice?.name || openWrtInfo.systemInfo.hostname;
         this.namePrefix = config.apDevice?.namePrefix || false;
         this.sensorsEnabled = config.apDevice?.sensor || false
+        this.buttons = (config.buttons ?? []).filter(button => (button.displayType ?? 0) > 0);
         this.logDeviceInfo = config.log?.deviceInfo || false;
         this.logInfo = config.log?.info || false;
         this.logDebug = config.log?.debug || false;
@@ -28,6 +29,12 @@ class AccessPoint extends EventEmitter {
         this.restFulConnected = false;
         this.mqtt = config.mqtt || {};
         this.mqttConnected = false;
+
+        //buttons
+        for (const button of this.buttons) {
+            button.serviceType = ['', Service.Outlet, Service.Switch][button.displayType];
+            button.state = false;
+        }
 
         //openwrt
         this.openWrt = openWrt;
@@ -53,6 +60,14 @@ class AccessPoint extends EventEmitter {
                     ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
                     .updateCharacteristic(Characteristic.ContactSensorState, !state);
 
+                //buttons
+                for (let i = 0; i < this.buttons.length; i++) {
+                    const button = this.buttons[i];
+                    const state = false;
+                    button.state = state;
+                    this.buttonServices?.[i]?.updateCharacteristic(Characteristic.On, state);
+                };
+
                 if (this.logInfo) {
                     this.emit('info', `Radio: ${radio}`);
                     this.emit('info', `Frequency: ${frequency}`);
@@ -63,8 +78,8 @@ class AccessPoint extends EventEmitter {
             }
 
             //restFul and mqtt
-            if (this.restFulConnected) this.emit('restFul', 'info', openWrtInfo);
-            if (this.mqttConnected) this.emit('mqtt', 'Info', openWrtInfo);
+            if (this.restFulConnected) this.restFul1.update('info', openWrtInfo);
+            if (this.mqttConnected) this.mqtt1.emit('publish', 'Info', openWrtInfo);
         });
     };
 
@@ -140,9 +155,14 @@ class AccessPoint extends EventEmitter {
         try {
             let set = false
             switch (key) {
-                case 'Power':
-                    const powerState = value ? 'ON' : 'OFF';
-                    set = await this.openWrt.send('Power', powerState);
+                case 'SystemReboot':
+                    set = value ? await this.openWrt.send('button', null, null, 0) : false;
+                    break;
+                case 'NetworkReload':
+                    set = value ? await this.openWrt.send('button', null, null, 1) : false;
+                    break;
+                case 'WiFiReload':
+                    set = value ? await this.openWrt.send('button', null, null, 2) : false;
                     break;
                 default:
                     this.emit('warn', `${integration}, received key: ${key}, value: ${value}`);
@@ -216,6 +236,51 @@ class AccessPoint extends EventEmitter {
                     this.sensorServices.push(sensorService);
                 };
             };
+
+            //prepare button services
+            const possibleButtonsCount = 99 - accessory.services.length;
+            const maxButtonsCount = this.buttons.length >= possibleButtonsCount ? possibleButtonsCount : this.buttons.length;
+            if (maxButtonsCount > 0) {
+                this.buttonServices = [];
+                if (this.logDebug) this.emit('debug', `Prepare buttons services`);
+                for (let i = 0; i < maxButtonsCount; i++) {
+                    const button = this.buttons[i];
+
+                    //get button name
+                    const name = button.name || `Button ${i}`;
+
+                    //get button command
+                    const command = button.command;
+
+                    //get button name prefix
+                    const namePrefix = button.namePrefix;
+
+                    //get service type
+                    const serviceType = button.serviceType;
+
+                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                    const buttonService = new serviceType(serviceName, `Button ${i}`);
+                    buttonService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                    buttonService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                    buttonService.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = button.state;
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            if (!state) return;
+
+                            try {
+                                if (this.power) await this.openWrt.send('button', null, null, command);
+                                if (this.logDebug) this.emit('debug', `Set command ${name}`);
+                            } catch (error) {
+                                if (this.logWarn) this.emit('warn', `Set command ${name} error: ${error}`);
+                            }
+                        });
+                    this.buttonServices.push(buttonService);
+                    accessory.addService(buttonService);
+                }
+            }
 
             return accessory;
         } catch (error) {

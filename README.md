@@ -33,11 +33,14 @@
 * Switch Port:
   * Comming soon.
 * Buttons:
-   * Comming soon.
+  * System reboot.
+  * Network reload.
+  * WiFi reload.
 * Siri:
   * SSIDs set `ON/OFF` control.
   * SSIDs get `ON/OFF` state.
 * Home automations and shortcuts can be used for all available functions.
+* External integrations include: [REST](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#mqtt-integration).
 
 ## Configuration
 
@@ -68,6 +71,11 @@
 | `swDevice.name` | Here set Your own switch name or leave empty. |
 | `swDevice.namePrefix` | Here enable accessory name as a prefix for the switch name. |
 | `swDevice.sensor` | Here enable switch `Ports` sensors. |
+| `buttons[]` | Buttons array. |
+| `buttons[].displayType` | Here choose display type in HomeKit app, possible `0 - None/Disabled`, `1 - Outlet`, `2 - Switch`.|
+| `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|
+| `buttons[].command` | Here choose command which will be assigned to the button. |
+| `buttons[].namePrefix` | Here enable the accessory name as a prefix for button name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |
@@ -88,3 +96,32 @@
 | `mqtt.auth.enable` | Here enable authorization for MQTT Broker. |
 | `mqtt.auth.user` | Here set the MQTT Broker `Username`. |
 | `mqtt.auth.passwd` | Here set the MQTT Broker `Password`. |
+
+### REST Integration
+
+REST POST calls must include a content-type header of `application/json`.
+Path `status` response all available paths.
+
+| Method | URL | Path | Response | Type |
+| --- | --- | --- | --- | --- |
+| GET | `http//ip:port` | `info`. | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+
+| Method | URL | Key | Value | Type | Description |
+| --- | --- | --- | --- | --- | --- |
+| POST | `http//ip:port` | `SystemReboot` | `true` | boolean | Reboot device |
+|      | `http//ip:port` | `NetworkReload` | `true` | boolean | Network reload |
+|      | `http//ip:port` | `WiFiReload` | `true` | boolean | WiFi Reload |
+
+### MQTT Integration
+
+Subscribe using JSON `{ "EnchargeProfile": "savings" }`
+
+| Method | Topic | Message | Type |
+| --- | --- | --- | --- |
+| Publish | `Info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+
+| Method | Topic | Key | Value | Type | Description |
+| --- | --- | --- | --- | --- | --- |
+| Subscribe | `Set` | `SystemReboot` | `true` | boolean | Reboot device |
+|           | `Set` | `NetworkReload` | `true` | boolean | Network reload |
+|           | `Set` | `WiFiReload` | `true` | boolean | WiFi Reload |

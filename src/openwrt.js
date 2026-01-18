@@ -162,7 +162,7 @@ class OpenWrt extends EventEmitter {
         }
     }
 
-    async send(type, radio, ssid, state) {
+    async send(type, radio, ssid, state, command) {
         switch (type) {
             case 'apDevice':
                 await this.handleWithLock(async () => {
@@ -190,13 +190,31 @@ class OpenWrt extends EventEmitter {
 
                     // Commit + reload
                     await this.ubusCall('uci', 'commit', { config: 'wireless' });
-                    await this.ubusCall('network.wireless', 'reload', {});
+                    await this.ubusCall('network.wireless', 'reload');
                     if (this.logDebug) this.emit('debug', `Send SSID ${ssid} on ${radio} ${state ? 'enabled' : 'disabled'}`);
                 });
                 break;
             case 'swDevice':
                 break;
+            case 'button':
+                switch (command) {
+                    case 0: //System reboot
+                        await this.ubusCall('system', 'reboot');
+                        break;
+                    case 1: //Network reload
+                        await this.ubusCall('network', 'reload');
+                        break;
+                    case 2: //WiFi reload
+                        await this.ubusCall('network.wireless', 'reload');
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
         }
+        return true;
     }
 
 }
