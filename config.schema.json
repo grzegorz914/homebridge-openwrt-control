@@ -4,11 +4,16 @@
   "singular": true,
   "fixArrays": true,
   "strictValidation": true,
-  "headerDisplay": "This plugin works with OpenWrt flashed devices. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
+  "headerDisplay": "This plugin works with OpenWrt devices. Devices are exposed to HomeKit as separate accessories and each needs to be manually paired.",
   "footerDisplay": "For documentation please see [GitHub repository](https://github.com/grzegorz914/homebridge-openwrt-control).",
   "schema": {
     "type": "object",
     "properties": {
+      "name": {
+        "title": "OpenWrt",
+        "type": "string",
+        "default": "OpenWrt"
+      },
       "devices": {
         "type": "array",
         "items": {

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
+## [0.0.5] - (18.01.2026)
+
+## Changes
+
+- added name properties to config chema
+
 ## [0.0.4] - (18.01.2026)
 
 ## Changes
