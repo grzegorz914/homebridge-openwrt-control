@@ -13,7 +13,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-openwrt-control.svg)](https://github.com/grzegorz914/homebridge-openwrt-control/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-openwrt-control.svg)](https://github.com/grzegorz914/homebridge-openwrt-control/issues)
 
- Homebridge plugin for OpenWrt flashed devices.
+ Homebridge plugin for OpenWrt devices.
   
 </span>
 
@@ -27,11 +27,17 @@
 
 ## About The Plugin
 
-* Access Points:
-  * Control `ON/OFF` all exposed SSID.
-  * Contact sensor monitor for all `SSIDs`.
-* Siri can be used to switch ON/OFF SSIDs.
-* Home automations and shortcuts can be used for all functions.
+* Access Point:
+  * SSIDs `ON/OFF` state control.
+  * SSIDs `ON/OFF` state monitor.
+* Switch Port:
+  * Comming soon.
+* Buttons:
+   * Comming soon.
+* Siri:
+  * SSIDs set `ON/OFF` control.
+  * SSIDs get `ON/OFF` state.
+* Home automations and shortcuts can be used for all available functions.
 
 ## Configuration
 
@@ -53,14 +59,14 @@
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
 | `apDevice{}` | Access Point. |
-| `apDevice.enable` | Here enable access point `SSIDs` control. |
+| `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set Your own access point name or leave empty. |
 | `apDevice.namePrefix` | Here enable accessory name as a prefix for access point name. |
 | `apDevice.sensor` | Here enable access point `SSIDs` sensors. |
 | `swDevice{}` | Switch object. |
-| `swDevice.enable` | Here enable switch `Ports` control. |
-| `swDevice.name` | Here set Your own name or for switch leave empty. |
-| `swDevice.namePrefix` | Here enable accessory name as a prefix for switch name. |
+| `swDevice.enable` | Here enable switch support. |
+| `swDevice.name` | Here set Your own switch name or leave empty. |
+| `swDevice.namePrefix` | Here enable accessory name as a prefix for the switch name. |
 | `swDevice.sensor` | Here enable switch `Ports` sensors. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
@@ -73,12 +79,12 @@
 | `restFul.enable` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFul.port` | Here set the listening `Port` for RESTful server. |
 | `mqtt{}` | MQTT object. |
-| `mqtt.enable` | If enabled, MQTT Broker will start automatically and publish all awailable data. |
+| `mqtt.enable` | If enabled, MQTT Broker will start automatically and publish all available data. |
 | `mqtt.host` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
 | `mqtt.port` | Here set the `Port` for MQTT Broker, default 1883. |
 | `mqtt.clientId` | Here optional set the `Client Id` of MQTT Broker. |
 | `mqtt.prefix` | Here set the `Prefix` for `Topic` or leave empty. |
 | `mqtt.auth{}` | MQTT authorization object. |
 | `mqtt.auth.enable` | Here enable authorization for MQTT Broker. |
-| `mqtt.auth.user` | Here set the MQTT Broker user. |
-| `mqtt.auth.passwd` | Here set the MQTT Broker password. |
+| `mqtt.auth.user` | Here set the MQTT Broker `Username`. |
+| `mqtt.auth.passwd` | Here set the MQTT Broker `Password`. |
