@@ -114,7 +114,7 @@ Path `status` response all available paths.
 
 ### MQTT Integration
 
-Subscribe using JSON `{ "EnchargeProfile": "savings" }`
+Subscribe using JSON `{ "SystemReboot": true }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
