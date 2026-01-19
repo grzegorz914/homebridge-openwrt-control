@@ -113,7 +113,7 @@
                 "name": {
                   "title": "Name",
                   "type": "string",
-                  "placeholder": "Name",
+                  "placeholder": "Access Point Name",
                   "description": "Here set the Name to be displayed in Homebridge/HomeKit for this access point.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
@@ -122,17 +122,109 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "Here enable/disable the accessory name as a prefix for the access point name.",
+                  "description": "Use the accessory name as a prefix for access point name",
                   "condition": {
-                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
+                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
+                  }
+                },
+                "control": {
+                  "title": "SSIDs Control",
+                  "type": "object",
+                  "properties": {
+                    "displayType": {
+                      "title": "Accessory type",
+                      "type": "integer",
+                      "description": "Accessory type for Home app",
+                      "minimum": 0,
+                      "maximum": 3,
+                      "anyOf": [
+                        {
+                          "title": "Disabled",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Switch",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        {
+                          "title": "Outlet",
+                          "enum": [
+                            2
+                          ]
+                        },
+                        {
+                          "title": "Lightbulb",
+                          "enum": [
+                            3
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
+                      }
+                    },
+                    "namePrefix": {
+                      "title": "Prefix",
+                      "type": "boolean",
+                      "description": "Use the accessory name as a prefix for SSIDs control name",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.control.displayType > 0;"
+                      }
+                    }
                   }
                 },
                 "sensor": {
-                  "title": "Sensor",
-                  "type": "boolean",
-                  "description": "Here Enable/Disable sensor for every SSID.",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
+                  "title": "SSIDs Sensor",
+                  "type": "object",
+                  "properties": {
+                    "displayType": {
+                      "title": "Accessory type",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 3,
+                      "description": "Accessory type for Home app",
+                      "anyOf": [
+                        {
+                          "title": "Disabled",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Motion Sensor",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        {
+                          "title": "Occupancy Sensor",
+                          "enum": [
+                            2
+                          ]
+                        },
+                        {
+                          "title": "Contact Sensor",
+                          "enum": [
+                            3
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
+                      }
+                    },
+                    "namePrefix": {
+                      "title": "Prefix",
+                      "type": "boolean",
+                      "description": "Use the accessory name as a prefix for SSIDs sensor name",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.sensor.displayType > 0;"
+                      }
+                    }
                   }
                 }
               }
@@ -147,9 +239,9 @@
                   "description": "Here Enable/Disable this switch control."
                 },
                 "name": {
-                  "title": "Name",
+                  "title": "Switch Name",
                   "type": "string",
-                  "placeholder": "Name",
+                  "placeholder": "Switch Name",
                   "description": "Here set the Name to be displayed in Homebridge/HomeKit for this switch.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
@@ -158,17 +250,109 @@
                 "namePrefix": {
                   "title": "Prefix",
                   "type": "boolean",
-                  "description": "Here enable/disable the accessory name as a prefix for the port name.",
+                  "description": "Use the accessory name as a prefix for switch name",
                   "condition": {
-                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
+                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
+                  }
+                },
+                "control": {
+                  "title": "Ports Control",
+                  "type": "object",
+                  "properties": {
+                    "displayType": {
+                      "title": "Accessory type",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 3,
+                      "description": "Accessory type for Home app",
+                      "anyOf": [
+                        {
+                          "title": "Disabled",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Switch",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        {
+                          "title": "Outlet",
+                          "enum": [
+                            2
+                          ]
+                        },
+                        {
+                          "title": "Lightbulb",
+                          "enum": [
+                            3
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
+                      }
+                    },
+                    "namePrefix": {
+                      "title": "Prefix",
+                      "type": "boolean",
+                      "description": "Use the accessory name as a prefix for Ports control name",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.control.displayType > 0;"
+                      }
+                    }
                   }
                 },
                 "sensor": {
-                  "title": "Sensor",
-                  "type": "boolean",
-                  "description": "Here Enable/Disable sensor for every port.",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
+                  "title": "Ports Sensor",
+                  "type": "object",
+                  "properties": {
+                    "displayType": {
+                      "title": "Accessory type",
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 3,
+                      "description": "Accessory type for Home app",
+                      "anyOf": [
+                        {
+                          "title": "Disabled",
+                          "enum": [
+                            0
+                          ]
+                        },
+                        {
+                          "title": "Motion Sensor",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        {
+                          "title": "Occupancy Sensor",
+                          "enum": [
+                            2
+                          ]
+                        },
+                        {
+                          "title": "Contact Sensor",
+                          "enum": [
+                            3
+                          ]
+                        }
+                      ],
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
+                      }
+                    },
+                    "namePrefix": {
+                      "title": "Prefix",
+                      "type": "boolean",
+                      "description": "Use the accessory name as a prefix for Ports sensor name",
+                      "condition": {
+                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.sensor.displayType > 0;"
+                      }
+                    }
                   }
                 }
               }
@@ -516,7 +700,29 @@
                     "devices[].apDevice.enable",
                     "devices[].apDevice.name",
                     "devices[].apDevice.namePrefix",
-                    "devices[].apDevice.sensor"
+                    {
+                      "key": "devices[].apDevice",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[].apDevice.control",
+                          "title": "Control",
+                          "items": [
+                            "devices[].apDevice.control.displayType",
+                            "devices[].apDevice.control.namePrefix"
+                          ]
+                        },
+                        {
+                          "key": "devices[].apDevice.sensor",
+                          "title": "Sensor",
+                          "items": [
+                            "devices[].apDevice.sensor.displayType",
+                            "devices[].apDevice.sensor.namePrefix"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
@@ -526,15 +732,34 @@
                     "devices[].swDevice.enable",
                     "devices[].swDevice.name",
                     "devices[].swDevice.namePrefix",
-                    "devices[].swDevice.sensor"
+                    {
+                      "key": "devices[].swDevice",
+                      "type": "tabarray",
+                      "title": "{{ value.title }}",
+                      "items": [
+                        {
+                          "key": "devices[].swDevice.control",
+                          "title": "Control",
+                          "items": [
+                            "devices[].swDevice.control.displayType",
+                            "devices[].swDevice.control.namePrefix"
+                          ]
+                        },
+                        {
+                          "key": "devices[].swDevice.sensor",
+                          "title": "Sensor",
+                          "items": [
+                            "devices[].swDevice.sensor.displayType",
+                            "devices[].swDevice.sensor.namePrefix"
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 },
                 {
                   "key": "devices[]",
-                  "type": "section",
                   "title": "Buttons",
-                  "expandable": true,
-                  "expanded": false,
                   "items": [
                     {
                       "key": "devices[].buttons",

@@ -16,9 +16,10 @@ class AccessPoint extends EventEmitter {
         //config
         this.config = config;
         this.host = config.host;
-        this.name = config.apDevice?.name || openWrtInfo.systemInfo.hostname;
+        this.name = config.apDevice?.name || `Access Point ${openWrtInfo.systemInfo.hostname}`;
         this.namePrefix = config.apDevice?.namePrefix || false;
-        this.sensorsEnabled = config.apDevice?.sensor || false
+        this.control = config.apDevice?.control || {};
+        this.sensor = config.apDevice?.sensor || {};
         this.buttons = (config.buttons ?? []).filter(button => (button.displayType ?? 0) > 0);
         this.logDeviceInfo = config.log?.deviceInfo || false;
         this.logInfo = config.log?.info || false;
@@ -51,22 +52,34 @@ class AccessPoint extends EventEmitter {
                 const frequency = ssids[i].frequency;
                 const name = ssids[i].name;
                 const state = ssids[i].disabled;
-                const serviceName = this.namePrefix ? `${this.name} ${name} ${frequency}` : `${name} ${frequency}`;
-                this.services?.[i]
-                    ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                    .updateCharacteristic(Characteristic.On, !state);
 
-                this.sensorServices?.[i]
-                    ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                    .updateCharacteristic(Characteristic.ContactSensorState, !state);
+                //controls
+                if (this.control.displayType > 0) {
+                    const serviceName = this.control.namePrefix ? `${this.name} ${name} ${frequency}` : `${name} ${frequency}`;
+                    const characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][this.control.displayType];
+                    this.services?.[i]
+                        ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
+                        .updateCharacteristic(characteristicType, !state);
+                }
+
+                //sensors
+                if (this.sensor.displayType > 0) {
+                    const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.sensor.displayType];
+                    const serviceName = this.sensor.namePrefix ? `${this.name} ${name} ${frequency}` : `${name} ${frequency}`;
+                    this.sensorServices?.[i]
+                        ?.setCharacteristic(Characteristic.ConfiguredName, serviceName)
+                        .updateCharacteristic(characteristicType, !state);
+                }
 
                 //buttons
-                for (let i = 0; i < this.buttons.length; i++) {
-                    const button = this.buttons[i];
-                    const state = false;
-                    button.state = state;
-                    this.buttonServices?.[i]?.updateCharacteristic(Characteristic.On, state);
-                };
+                if (this.buttons.length > 0) {
+                    for (let i = 0; i < this.buttons.length; i++) {
+                        const button = this.buttons[i];
+                        const state = false;
+                        button.state = state;
+                        this.buttonServices?.[i]?.updateCharacteristic(Characteristic.On, state);
+                    };
+                }
 
                 if (this.logInfo) {
                     this.emit('info', `Radio: ${radio}`);
@@ -197,35 +210,45 @@ class AccessPoint extends EventEmitter {
             //services
             this.services = [];
             this.sensorServices = [];
+
+            //ssids controls
             for (const ssid of this.openWrtInfo.wirelessSsids) {
                 const radio = ssid.device; //radio name
                 const frequency = ssid.frequency; //frequency
-                const name = ssid.name;
-                if (this.logDebug) this.emit('debug', `prepare ssid: ${name} ${radio} service`);
+                const name = ssid.name; //ssid name
 
-                const serviceName = this.namePrefix ? `${accessoryName} ${name} ${frequency}` : `${name} ${frequency}`;
-                const service = accessory.addService(Service.Switch, serviceName, `service${name}${radio}`);
-                service.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                service.getCharacteristic(Characteristic.On)
-                    .onGet(async () => {
-                        const state = !ssid.disabled;
-                        if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, state: ${state ? 'Enabled' : 'Disabled'}`);
-                        return state;
-                    })
-                    .onSet(async (state) => {
-                        try {
-                            await this.openWrt.send('apDevice', radio, name, state);
-                            if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, set State: ${state ? 'Enabled' : 'Disabled'}`);
-                        } catch (error) {
-                            this.emit('warn', `SSID: ${name}, radio: ${radio}, set state error: ${error}`);
-                        }
-                    });
-                this.services.push(service);
+                if (this.control.displayType > 0) {
+                    if (this.logDebug) this.emit('debug', `prepare ssid: ${name} ${radio} service`);
 
-                if (this.sensorsEnabled) {
+                    const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][this.control.displayType];
+                    const serviceName = this.control.namePrefix ? `${accessoryName} ${name} ${frequency}` : `${name} ${frequency}`;
+                    const service = accessory.addService(serviceType, serviceName, `service${name}${radio}`);
+                    service.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                    service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                    service.getCharacteristic(Characteristic.On)
+                        .onGet(async () => {
+                            const state = !ssid.disabled;
+                            if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, state: ${state ? 'Enabled' : 'Disabled'}`);
+                            return state;
+                        })
+                        .onSet(async (state) => {
+                            try {
+                                await this.openWrt.send('apDevice', radio, name, state);
+                                if (this.logInfo) this.emit('message', `SSID: ${name}, radio: ${radio}, set State: ${state ? 'Enabled' : 'Disabled'}`);
+                            } catch (error) {
+                                this.emit('warn', `SSID: ${name}, radio: ${radio}, set state error: ${error}`);
+                            }
+                        });
+                    this.services.push(service);
+                }
+
+                //ssids sensors
+                if (this.sensor.displayType > 0) {
                     if (this.logDebug) this.emit('debug', `prepare ssid: ${name} ${radio} sensor service`);
-                    const sensorService = accessory.addService(Service.ContactSensor, serviceName, `sensorService${name}${radio}`);
+
+                    const serviceType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.sensor.displayType];
+                    const serviceName = this.sensor.namePrefix ? `${accessoryName} ${name} ${frequency}` : `${name} ${frequency}`;
+                    const sensorService = accessory.addService(serviceType, serviceName, `sensorService${name}${radio}`);
                     sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     sensorService.getCharacteristic(Characteristic.ContactSensorState)
@@ -234,51 +257,53 @@ class AccessPoint extends EventEmitter {
                             return state;
                         });
                     this.sensorServices.push(sensorService);
-                };
-            };
+                }
+            }
 
             //prepare button services
-            const possibleButtonsCount = 99 - accessory.services.length;
-            const maxButtonsCount = this.buttons.length >= possibleButtonsCount ? possibleButtonsCount : this.buttons.length;
-            if (maxButtonsCount > 0) {
-                this.buttonServices = [];
-                if (this.logDebug) this.emit('debug', `Prepare buttons services`);
-                for (let i = 0; i < maxButtonsCount; i++) {
-                    const button = this.buttons[i];
+            if (this.buttons.length > 0) {
+                const possibleButtonsCount = 99 - accessory.services.length;
+                const maxButtonsCount = this.buttons.length >= possibleButtonsCount ? possibleButtonsCount : this.buttons.length;
+                if (maxButtonsCount > 0) {
+                    this.buttonServices = [];
+                    if (this.logDebug) this.emit('debug', `Prepare buttons services`);
+                    for (let i = 0; i < maxButtonsCount; i++) {
+                        const button = this.buttons[i];
 
-                    //get button name
-                    const name = button.name || `Button ${i}`;
+                        //get button name
+                        const name = button.name || `Button ${i}`;
 
-                    //get button command
-                    const command = button.command;
+                        //get button command
+                        const command = button.command;
 
-                    //get button name prefix
-                    const namePrefix = button.namePrefix;
+                        //get button name prefix
+                        const namePrefix = button.namePrefix;
 
-                    //get service type
-                    const serviceType = button.serviceType;
+                        //get service type
+                        const serviceType = button.serviceType;
 
-                    const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
-                    const buttonService = new serviceType(serviceName, `Button ${i}`);
-                    buttonService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-                    buttonService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
-                    buttonService.getCharacteristic(Characteristic.On)
-                        .onGet(async () => {
-                            const state = button.state;
-                            return state;
-                        })
-                        .onSet(async (state) => {
-                            if (!state) return;
+                        const serviceName = namePrefix ? `${accessoryName} ${name}` : name;
+                        const buttonService = new serviceType(serviceName, `Button ${i}`);
+                        buttonService.addOptionalCharacteristic(Characteristic.ConfiguredName);
+                        buttonService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+                        buttonService.getCharacteristic(Characteristic.On)
+                            .onGet(async () => {
+                                const state = button.state;
+                                return state;
+                            })
+                            .onSet(async (state) => {
+                                if (!state) return;
 
-                            try {
-                                if (this.power) await this.openWrt.send('button', null, null, command);
-                                if (this.logDebug) this.emit('debug', `Set command ${name}`);
-                            } catch (error) {
-                                if (this.logWarn) this.emit('warn', `Set command ${name} error: ${error}`);
-                            }
-                        });
-                    this.buttonServices.push(buttonService);
-                    accessory.addService(buttonService);
+                                try {
+                                    if (this.power) await this.openWrt.send('button', null, null, command);
+                                    if (this.logDebug) this.emit('debug', `Set command ${name}`);
+                                } catch (error) {
+                                    if (this.logWarn) this.emit('warn', `Set command ${name} error: ${error}`);
+                                }
+                            });
+                        this.buttonServices.push(buttonService);
+                        accessory.addService(buttonService);
+                    }
                 }
             }
 

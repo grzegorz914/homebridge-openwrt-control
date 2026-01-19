@@ -32,7 +32,14 @@
                             "enable": false,
                             "name": "My Access Point",
                             "namePrefix": false,
-                            "sensor": false
+                            "control": {
+                                "displayType": 1,
+                                "namePrefix": false
+                            },
+                            "sensor": {
+                                "displayType": 1,
+                                "namePrefix": false
+                            }
                         }
                     ],
                     "swDevice": [
@@ -40,7 +47,14 @@
                             "enable": false,
                             "name": "My Switch",
                             "namePrefix": false,
-                            "sensor": false
+                            "control": {
+                                "displayType": 1,
+                                "namePrefix": false
+                            },
+                            "sensor": {
+                                "displayType": 1,
+                                "namePrefix": false
+                            }
                         }
                     ],
                     "buttons": [

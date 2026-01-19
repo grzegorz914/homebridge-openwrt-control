@@ -65,12 +65,22 @@
 | `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set Your own access point name or leave empty. |
 | `apDevice.namePrefix` | Here enable accessory name as a prefix for access point name. |
-| `apDevice.sensor` | Here enable access point `SSIDs` sensors. |
-| `swDevice{}` | Switch object. |
+| `apDevice.control{}` | Access Point control. |
+| `apDevice.control.displayType` | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `apDevice.control.namePrefix` | Here enable accessory name as a prefix for `SSIDs` control name. |
+| `apDevice.sensor{}` | Access Point sensor. |
+| `apDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `apDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `SSIDs` sensor name. |
+| `swDevice{}` | Access Point. |
 | `swDevice.enable` | Here enable switch support. |
 | `swDevice.name` | Here set Your own switch name or leave empty. |
-| `swDevice.namePrefix` | Here enable accessory name as a prefix for the switch name. |
-| `swDevice.sensor` | Here enable switch `Ports` sensors. |
+| `swDevice.namePrefix` | Here enable accessory name as a prefix for switch name. |
+| `swDevice.control{}` | Access Point control. |
+| `swDevice.control.displayType` | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `swDevice.control.namePrefix` | Here enable accessory name as a prefix for `Ports` control name. |
+| `swDevice.sensor{}` | Access Point sensor. |
+| `swDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `swDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Here choose display type in HomeKit app, possible `0 - None/Disabled`, `1 - Outlet`, `2 - Switch`.|
 | `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|

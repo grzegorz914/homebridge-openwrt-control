@@ -92,7 +92,7 @@ class OpenWrt extends EventEmitter {
 
     async connect() {
         try {
-            const openWrtInfo = { state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [] };
+            const openWrtInfo = { state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [] };
 
             // System information
             const systemInfo = await this.ubusCall('system', 'board');
