@@ -61,25 +61,25 @@
 | `auth.enable` | If enabled, authorizatins credentials will be used for login. |
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
-| `apDevice{}` | Access Point. |
+| `apDevice{}` | Access point object. |
 | `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set Your own access point name or leave empty. |
 | `apDevice.namePrefix` | Here enable accessory name as a prefix for access point name. |
-| `apDevice.control{}` | Access Point control. |
-| `apDevice.control.displayType` | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `apDevice.control{}` | Access point `SSIDs` control object. |
+| `apDevice.control.displayType` | `SSIDs` accessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `apDevice.control.namePrefix` | Here enable accessory name as a prefix for `SSIDs` control name. |
-| `apDevice.sensor{}` | Access Point sensor. |
-| `apDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `apDevice.sensor{}` | Access point `SSIDs` sensor object. |
+| `apDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `apDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `SSIDs` sensor name. |
-| `swDevice{}` | Access Point. |
+| `swDevice{}` | Switch object. |
 | `swDevice.enable` | Here enable switch support. |
 | `swDevice.name` | Here set Your own switch name or leave empty. |
 | `swDevice.namePrefix` | Here enable accessory name as a prefix for switch name. |
-| `swDevice.control{}` | Access Point control. |
-| `swDevice.control.displayType` | Accessory type for Home app: `0` - None/Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `swDevice.control{}` | Switch control. |
+| `swDevice.control.displayType` | `Ports` ccessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `swDevice.control.namePrefix` | Here enable accessory name as a prefix for `Ports` control name. |
-| `swDevice.sensor{}` | Access Point sensor. |
-| `swDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - None/Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `swDevice.sensor{}` | Switch sensor object. |
+| `swDevice.sensor.displayType` | `Ports` ccessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `swDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Here choose display type in HomeKit app, possible `0 - None/Disabled`, `1 - Outlet`, `2 - Switch`.|
