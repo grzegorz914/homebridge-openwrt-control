@@ -56,7 +56,7 @@
 | --- | --- |
 | `name` | Here set Your own device name. |
 | `host` | Here set the device `Hsostname or Address IP`.|
-| `displayType` | Here enable or disable the device: `0 - Disable`, `1 - Enable`. |
+| `displayType` | Here enable or disable this device: `0 - Disable`, `1 - Enable`. |
 | `auth{}` | Authorization object. |
 | `auth.enable` | Here enable authorizatin credentials. |
 | `auth.user` | Here set the authorization `Username`. |
@@ -81,9 +81,9 @@
 | `swDevice.sensor.namePrefix` | Here enable switch name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Here choose display type in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch.|
-| `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|
+| `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
-| `buttons[].namePrefix` | Here enable device name as a prefix for button name. |
+| `buttons[].namePrefix` | Here enable device name as a prefix for the button name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |

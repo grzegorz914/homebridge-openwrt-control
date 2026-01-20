@@ -85,7 +85,7 @@
               "minimum": 0,
               "maximum": 1,
               "default": 0,
-              "description": "Accessory type for Home app",
+              "description": "Device control",
               "anyOf": [
                 {
                   "title": "Disabled",
@@ -108,13 +108,13 @@
                 "enable": {
                   "title": "Enable",
                   "type": "boolean",
-                  "description": "Here Enable/Disable this access point control."
+                  "description": "Here enable this access point."
                 },
                 "name": {
                   "title": "Name",
                   "type": "string",
                   "placeholder": "Access Point Name",
-                  "description": "Here set the Name to be displayed in Homebridge/HomeKit for this access point.",
+                  "description": "Here set the name to be displayed in Homebridge/HomeKit for this access point.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
                   }
@@ -126,7 +126,7 @@
                     "displayType": {
                       "title": "Accessory type",
                       "type": "integer",
-                      "description": "Accessory type for Home app",
+                      "description": "SSIDs accessory control type for Home app",
                       "minimum": 0,
                       "maximum": 3,
                       "anyOf": [
@@ -162,7 +162,7 @@
                     "namePrefix": {
                       "title": "Prefix",
                       "type": "boolean",
-                      "description": "Use the accessory name as a prefix for SSIDs control name",
+                      "description": "Here enable the acces point name as a prefix for SSIDs control name",
                       "condition": {
                         "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.control.displayType > 0;"
                       }
@@ -178,7 +178,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "Accessory type for Home app",
+                      "description": "SSIDs accessory sensor type for Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -212,7 +212,7 @@
                     "namePrefix": {
                       "title": "Prefix",
                       "type": "boolean",
-                      "description": "Use the accessory name as a prefix for SSIDs sensor name",
+                      "description": "Here enable the access point name as a prefix for SSIDs sensor name",
                       "condition": {
                         "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.sensor.displayType > 0;"
                       }
@@ -228,13 +228,13 @@
                 "enable": {
                   "title": "Enable",
                   "type": "boolean",
-                  "description": "Here Enable/Disable this switch control."
+                  "description": "Here enable this switch."
                 },
                 "name": {
                   "title": "Switch Name",
                   "type": "string",
                   "placeholder": "Switch Name",
-                  "description": "Here set the Name to be displayed in Homebridge/HomeKit for this switch.",
+                  "description": "Here set the name to be displayed in Homebridge/HomeKit for this switch.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
                   }
@@ -248,7 +248,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "Accessory type for Home app",
+                      "description": "Ports accessory control type for Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -282,7 +282,7 @@
                     "namePrefix": {
                       "title": "Prefix",
                       "type": "boolean",
-                      "description": "Use the accessory name as a prefix for Ports control name",
+                      "description": "Here enable the accessory name as a prefix for Ports control name",
                       "condition": {
                         "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.control.displayType > 0;"
                       }
@@ -298,7 +298,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "Accessory type for Home app",
+                      "description": "Ports accessory sensor type for Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -332,7 +332,7 @@
                     "namePrefix": {
                       "title": "Prefix",
                       "type": "boolean",
-                      "description": "Use the accessory name as a prefix for Ports sensor name",
+                      "description": "Here enable the accessory name as a prefix for Ports sensor name",
                       "condition": {
                         "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.sensor.displayType > 0;"
                       }
