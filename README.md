@@ -64,7 +64,7 @@
 | `apDevice{}` | Access point object. |
 | `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set access point name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `apDevice.namePrefix` | Here enable acces point name as a prefix for access point name. |
+| `apDevice.namePrefix` | Here enable device name as a prefix for access point name. |
 | `apDevice.control{}` | Access point `SSIDs` control object. |
 | `apDevice.control.displayType` | `SSIDs` accessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `apDevice.control.namePrefix` | Here enable access point name as a prefix for `SSIDs` control name. |
@@ -74,7 +74,7 @@
 | `swDevice{}` | Switch object. |
 | `swDevice.enable` | Here enable switch support. |
 | `swDevice.name` | Here set switch name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `swDevice.namePrefix` | Here enable switch name as a prefix for switch name. |
+| `swDevice.namePrefix` | Here enable device name as a prefix for switch name. |
 | `swDevice.control{}` | Switch control. |
 | `swDevice.control.displayType` | `Ports` ccessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `swDevice.control.namePrefix` | Here enable switch name as a prefix for `Ports` control name. |
@@ -85,7 +85,7 @@
 | `buttons[].displayType` | Here choose display type in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch.|
 | `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
-| `buttons[].namePrefix` | Here enable the device name as a prefix for button name. |
+| `buttons[].namePrefix` | Here enable device name as a prefix for button name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |
