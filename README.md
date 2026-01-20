@@ -54,38 +54,38 @@
 
 | Key | Description |
 | --- | --- |
-| `name` | Here set the accessory `Name` to be displayed in `Homebridge/HomeKit`. |
-| `host` | Here set the `Hsostname or Address IP` of Sat Receiver.|
-| `displayType` | Accessory type to be displayed in Home app: `0 - Disable`, `1 - Enable`. |
+| `name` | Here set Your own device name. |
+| `host` | Here set the device `Hsostname or Address IP`.|
+| `displayType` | Here enable or disable the device: `0 - Disable`, `1 - Enable`. |
 | `auth{}` | Authorization object. |
-| `auth.enable` | If enabled, authorizatins credentials will be used for login. |
+| `auth.enable` | Here enable authorizatin credentials. |
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
 | `apDevice{}` | Access point object. |
 | `apDevice.enable` | Here enable access point support. |
-| `apDevice.name` | Here set Your own access point name or leave empty. |
-| `apDevice.namePrefix` | Here enable accessory name as a prefix for access point name. |
+| `apDevice.name` | Here set access point name or leave empty, this name will by displayed in Homebridge/Home app. |
+| `apDevice.namePrefix` | Here enable acces point name as a prefix for access point name. |
 | `apDevice.control{}` | Access point `SSIDs` control object. |
 | `apDevice.control.displayType` | `SSIDs` accessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `apDevice.control.namePrefix` | Here enable accessory name as a prefix for `SSIDs` control name. |
+| `apDevice.control.namePrefix` | Here enable access point name as a prefix for `SSIDs` control name. |
 | `apDevice.sensor{}` | Access point `SSIDs` sensor object. |
 | `apDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `apDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `SSIDs` sensor name. |
+| `apDevice.sensor.namePrefix` | Here enable access point name as a prefix for `SSIDs` sensor name. |
 | `swDevice{}` | Switch object. |
 | `swDevice.enable` | Here enable switch support. |
-| `swDevice.name` | Here set Your own switch name or leave empty. |
-| `swDevice.namePrefix` | Here enable accessory name as a prefix for switch name. |
+| `swDevice.name` | Here set switch name or leave empty, this name will by displayed in Homebridge/Home app. |
+| `swDevice.namePrefix` | Here enable switch name as a prefix for switch name. |
 | `swDevice.control{}` | Switch control. |
 | `swDevice.control.displayType` | `Ports` ccessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `swDevice.control.namePrefix` | Here enable accessory name as a prefix for `Ports` control name. |
+| `swDevice.control.namePrefix` | Here enable switch name as a prefix for `Ports` control name. |
 | `swDevice.sensor{}` | Switch sensor object. |
 | `swDevice.sensor.displayType` | `Ports` ccessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `swDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `Ports` sensor name. |
+| `swDevice.sensor.namePrefix` | Here enable switch name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Here choose display type in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch.|
 | `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
-| `buttons[].namePrefix` | Here enable the accessory name as a prefix for button name. |
+| `buttons[].namePrefix` | Here enable the device name as a prefix for button name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |
