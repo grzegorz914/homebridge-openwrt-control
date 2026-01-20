@@ -64,7 +64,6 @@
 | `apDevice{}` | Access point object. |
 | `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set access point name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `apDevice.namePrefix` | Here enable device name as a prefix for access point name. |
 | `apDevice.control{}` | Access point `SSIDs` control object. |
 | `apDevice.control.displayType` | `SSIDs` accessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `apDevice.control.namePrefix` | Here enable access point name as a prefix for `SSIDs` control name. |
@@ -74,7 +73,6 @@
 | `swDevice{}` | Switch object. |
 | `swDevice.enable` | Here enable switch support. |
 | `swDevice.name` | Here set switch name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `swDevice.namePrefix` | Here enable device name as a prefix for switch name. |
 | `swDevice.control{}` | Switch control. |
 | `swDevice.control.displayType` | `Ports` ccessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `swDevice.control.namePrefix` | Here enable switch name as a prefix for `Ports` control name. |

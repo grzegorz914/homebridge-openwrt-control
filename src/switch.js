@@ -17,7 +17,6 @@ class AccessPoint extends EventEmitter {
         this.config = config;
         this.host = config.host;
         this.name = config.swDevice?.name || `Switch ${openWrtInfo.systemInfo.hostname}`;
-        this.namePrefix = config.swDevice?.namePrefix || false;
         this.control = config.swDevice?.control || {};
         this.sensor = config.swDevice?.sensor || {};
         this.buttons = (config.buttons ?? []).filter(button => (button.displayType ?? 0) > 0);
@@ -218,6 +217,7 @@ class AccessPoint extends EventEmitter {
                     const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][this.control.displayType];
                     const serviceName = this.control.namePrefix ? `${accessoryName} ${name}` : `${name}`;
                     const service = accessory.addService(serviceType, serviceName, `service${name}${radio}`);
+                    service.setPrimaryService(true);
                     service.addOptionalCharacteristic(Characteristic.ConfiguredName);
                     service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
                     service.getCharacteristic(Characteristic.On)

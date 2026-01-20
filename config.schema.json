@@ -119,14 +119,6 @@
                     "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
                   }
                 },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "Use the accessory name as a prefix for access point name",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
-                  }
-                },
                 "control": {
                   "title": "SSIDs Control",
                   "type": "object",
@@ -245,14 +237,6 @@
                   "description": "Here set the Name to be displayed in Homebridge/HomeKit for this switch.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
-                  }
-                },
-                "namePrefix": {
-                  "title": "Prefix",
-                  "type": "boolean",
-                  "description": "Use the accessory name as a prefix for switch name",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
                   }
                 },
                 "control": {
@@ -699,7 +683,6 @@
                   "items": [
                     "devices[].apDevice.enable",
                     "devices[].apDevice.name",
-                    "devices[].apDevice.namePrefix",
                     {
                       "key": "devices[].apDevice",
                       "type": "tabarray",
@@ -731,7 +714,6 @@
                   "items": [
                     "devices[].swDevice.enable",
                     "devices[].swDevice.name",
-                    "devices[].swDevice.namePrefix",
                     {
                       "key": "devices[].swDevice",
                       "type": "tabarray",
