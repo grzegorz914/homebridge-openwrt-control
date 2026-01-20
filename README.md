@@ -65,22 +65,22 @@
 | `apDevice.enable` | Here enable access point support. |
 | `apDevice.name` | Here set access point name or leave empty, this name will by displayed in Homebridge/Home app. |
 | `apDevice.control{}` | Access point `SSIDs` control object. |
-| `apDevice.control.displayType` | `SSIDs` accessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `apDevice.control.displayType` | Aaccessory type for `SSIDs` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `apDevice.control.namePrefix` | Here enable access point name as a prefix for `SSIDs` control name. |
 | `apDevice.sensor{}` | Access point `SSIDs` sensor object. |
-| `apDevice.sensor.displayType` | Accessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `apDevice.sensor.displayType` | Accessory type for `SSIDs` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `apDevice.sensor.namePrefix` | Here enable access point name as a prefix for `SSIDs` sensor name. |
 | `swDevice{}` | Switch object. |
 | `swDevice.enable` | Here enable switch support. |
 | `swDevice.name` | Here set switch name or leave empty, this name will by displayed in Homebridge/Home app. |
 | `swDevice.control{}` | Switch control. |
-| `swDevice.control.displayType` | `Ports` ccessory type for Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `swDevice.control.displayType` | Accessory type for `Ports` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `swDevice.control.namePrefix` | Here enable switch name as a prefix for `Ports` control name. |
 | `swDevice.sensor{}` | Switch sensor object. |
-| `swDevice.sensor.displayType` | `Ports` ccessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `swDevice.sensor.displayType` | Acessory type for `Ports` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `swDevice.sensor.namePrefix` | Here enable switch name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
-| `buttons[].displayType` | Here choose display type in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch.|
+| `buttons[].displayType` | Accessory type for `Buttons` in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
 | `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
 | `buttons[].namePrefix` | Here enable device name as a prefix for the button name. |

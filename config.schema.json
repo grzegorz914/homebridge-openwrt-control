@@ -125,7 +125,7 @@
                     "displayType": {
                       "title": "Accessory type",
                       "type": "integer",
-                      "description": "SSIDs accessory control type for Home app",
+                      "description": "Accessory type for SSIDs control in Home app",
                       "minimum": 0,
                       "maximum": 3,
                       "anyOf": [
@@ -161,7 +161,7 @@
                     "namePrefix": {
                       "title": "Prefix",
                       "type": "boolean",
-                      "description": "Here enable the acces point name as a prefix for SSIDs control name",
+                      "description": "Here enable the access point name as a prefix for SSIDs control name",
                       "condition": {
                         "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.control.displayType > 0;"
                       }
@@ -177,7 +177,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "SSIDs accessory sensor type for Home app",
+                      "description": "Accessory type for SSIDs sensor Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -247,7 +247,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "Ports accessory control type for Home app",
+                      "description": "Accessory type for Ports control in Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -297,7 +297,7 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 3,
-                      "description": "Ports accessory sensor type for Home app",
+                      "description": "Accessory type for Ports sensor in Home app",
                       "anyOf": [
                         {
                           "title": "Disabled",
@@ -371,7 +371,7 @@
                         ]
                       }
                     ],
-                    "description": "Here select display type in HomeKit app"
+                    "description": "Accessory type for Buttons in HomeKit app"
                   },
                   "name": {
                     "title": "Name",
