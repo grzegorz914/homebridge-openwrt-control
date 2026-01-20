@@ -82,7 +82,7 @@
 | `swDevice.sensor.displayType` | `Ports` ccessory type to be displayed in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `swDevice.sensor.namePrefix` | Here enable accessory name as a prefix for `Ports` sensor name. |
 | `buttons[]` | Buttons array. |
-| `buttons[].displayType` | Here choose display type in HomeKit app, possible `0 - None/Disabled`, `1 - Outlet`, `2 - Switch`.|
+| `buttons[].displayType` | Here choose display type in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch.|
 | `buttons[].name` | Here set `Button Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
 | `buttons[].namePrefix` | Here enable the accessory name as a prefix for button name. |
