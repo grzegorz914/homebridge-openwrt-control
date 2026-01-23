@@ -63,14 +63,14 @@
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
 | `wireless{}` | Wireless object. |
-| `wireless.radio{}` | Radio object. |
+| `wireless.radio{}` | Wireless `Radio` object. |
 | `wireless.radio.control{}` | Wireless `Radio` control object. |
 | `wireless.radio.control.displayType` | Aaccessory type for `Radio` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
 | `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
 | `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
-| `wireless.ssid{}` | SSID object. |
+| `wireless.ssid{}` | Wireless `SSID` object. |
 | `wireless.ssid.control{}` | Wireless `SSID` control object. |
 | `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
 | `wireless.ssid.control.namePrefix` | Here enable device name as a prefix for `SSID` control name. |
