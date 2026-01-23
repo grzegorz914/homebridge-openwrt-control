@@ -58,8 +58,8 @@
 | Key | Description |
 | --- | --- |
 | `name` | Here set Your own device name. |
-| `host` | Here set the device `Hsostname or Address IP`.|
-| `displayType` | Here enable or disable this device: `0 - Disable`, `1 - Enable`. |
+| `host` | Here set the device `IP Address` or `Hostname`.|
+| `displayType` | Here set the device state: `0 - Disable`, `1 - Enable`. |
 | `auth{}` | Authorization object. |
 | `auth.enable` | Here enable authorizatin credentials. |
 | `auth.user` | Here set the authorization `Username`. |
@@ -68,11 +68,11 @@
 | `wireless.radio{}` | Wireless `Radio` object. |
 | `wireless.radio.control{}` | Wireless `Radio` control object. |
 | `wireless.radio.control.displayType` | Aaccessory type for `Radio` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
+| `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radio` control name. |
 | `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
 | `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `wireless.radio.control.restart` | Here enable restart `Radio` instead of toggle. |
-| `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
+| `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radio` sensor name. |
 | `wireless.ssid{}` | Wireless `SSID` object. |
 | `wireless.ssid.control{}` | Wireless `SSID` control object. |
 | `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
@@ -81,12 +81,12 @@
 | `wireless.ssid.sensor.displayType` | Accessory type for `SSID` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `wireless.ssid.sensor.namePrefix` | Here enable device name as a prefix for `SSID` sensor name. |
 | `buttons[]` | Buttons array. |
-| `buttons[].displayType` | Accessory type for `Buttons` in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
+| `buttons[].displayType` | Accessory type for `Button` in Home app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
 | `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
 | `buttons[].namePrefix` | Here enable device name as a prefix for the `Button` name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
-| `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
+| `log.deviceInfo` | If enabled, log device info will be displayed by every restart of plugin. |
 | `log.success` | If enabled, success log will be displayed in console. |
 | `log.info` | If enabled, info log will be displayed in console. |
 | `log.warn` | If enabled, warn log will be displayed in console. |
@@ -113,13 +113,13 @@ Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| GET | `http//ip:port` | `info` | `{ state: false, info: '', linkUp:false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | POST | `http//ip:port` | `SystemReboot` | `true` | boolean | Reboot device |
 |      | `http//ip:port` | `NetworkReload` | `true` | boolean | Network reload |
-|      | `http//ip:port` | `WiFiReload` | `true` | boolean | WiFi Reload |
+|      | `http//ip:port` | `WiFiReload` | `true` | boolean | Wireless Reload |
 
 ### MQTT Integration
 
@@ -127,10 +127,10 @@ Subscribe using JSON `{ "SystemReboot": true }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| Publish | `Info` | `{ state: false, info: '', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `SystemReboot` | `true` | boolean | Reboot device |
 |           | `Set` | `NetworkReload` | `true` | boolean | Network reload |
-|           | `Set` | `WiFiReload` | `true` | boolean | WiFi Reload |
+|           | `Set` | `WiFiReload` | `true` | boolean | Wireless Reload |
