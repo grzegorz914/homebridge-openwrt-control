@@ -23,7 +23,7 @@
             "name": {
               "title": "Name",
               "type": "string",
-              "placeholder": "OpenWrt"
+              "placeholder": "MR52 Router"
             },
             "host": {
               "title": "IP/Hostname",
@@ -100,240 +100,206 @@
                 }
               ]
             },
-            "apDevice": {
-              "title": "Access point",
+            "wireless": {
+              "title": "Wireless",
               "type": "object",
               "properties": {
-                "enable": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here enable this access point."
-                },
-                "name": {
-                  "title": "Name",
-                  "type": "string",
-                  "placeholder": "Access Point Name",
-                  "description": "Here set the name to be displayed in Homebridge/HomeKit for this access point.",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].apDevice.enable === true;"
-                  }
-                },
-                "control": {
-                  "title": "SSIDs Control",
+                "radio": {
+                  "title": "Radio",
                   "type": "object",
                   "properties": {
-                    "displayType": {
-                      "title": "Accessory type",
-                      "type": "integer",
-                      "description": "Accessory type for SSIDs control in Home app",
-                      "minimum": 0,
-                      "maximum": 3,
-                      "anyOf": [
-                        {
-                          "title": "Disabled",
-                          "enum": [
-                            0
+                    "control": {
+                      "title": "Control",
+                      "type": "object",
+                      "properties": {
+                        "displayType": {
+                          "title": "Accessory type",
+                          "type": "integer",
+                          "description": "Accessory type for Radio control in Home app",
+                          "minimum": 0,
+                          "maximum": 3,
+                          "anyOf": [
+                            {
+                              "title": "Disabled",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            {
+                              "title": "Switch",
+                              "enum": [
+                                1
+                              ]
+                            },
+                            {
+                              "title": "Outlet",
+                              "enum": [
+                                2
+                              ]
+                            },
+                            {
+                              "title": "Lightbulb",
+                              "enum": [
+                                3
+                              ]
+                            }
                           ]
                         },
-                        {
-                          "title": "Switch",
-                          "enum": [
-                            1
-                          ]
-                        },
-                        {
-                          "title": "Outlet",
-                          "enum": [
-                            2
-                          ]
-                        },
-                        {
-                          "title": "Lightbulb",
-                          "enum": [
-                            3
-                          ]
+                        "namePrefix": {
+                          "title": "Prefix",
+                          "type": "boolean",
+                          "description": "Here enable the device name as a prefix for Radio control name",
+                          "condition": {
+                            "functionBody": "return model.devices[arrayIndices].wireless.radio.control.displayType > 0;"
+                          }
                         }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
                       }
                     },
-                    "namePrefix": {
-                      "title": "Prefix",
-                      "type": "boolean",
-                      "description": "Here enable the access point name as a prefix for SSIDs control name",
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.control.displayType > 0;"
+                    "sensor": {
+                      "title": "Control",
+                      "type": "object",
+                      "properties": {
+                        "displayType": {
+                          "title": "Accessory type",
+                          "type": "integer",
+                          "description": "Accessory type for Radio sensor in Home app",
+                          "minimum": 0,
+                          "maximum": 3,
+                          "anyOf": [
+                            {
+                              "title": "Disabled",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            {
+                              "title": "Motion Sensor",
+                              "enum": [
+                                1
+                              ]
+                            },
+                            {
+                              "title": "Occupancy Sensor",
+                              "enum": [
+                                2
+                              ]
+                            },
+                            {
+                              "title": "Contact Sensor",
+                              "enum": [
+                                3
+                              ]
+                            }
+                          ]
+                        },
+                        "namePrefix": {
+                          "title": "Prefix",
+                          "type": "boolean",
+                          "description": "Here enable the device name as a prefix for Radio sensor name",
+                          "condition": {
+                            "functionBody": "return model.devices[arrayIndices].wireless.radio.sensor.displayType > 0;"
+                          }
+                        }
                       }
                     }
                   }
                 },
-                "sensor": {
-                  "title": "SSIDs Sensor",
+                "ssid": {
+                  "title": "SSID",
                   "type": "object",
                   "properties": {
-                    "displayType": {
-                      "title": "Accessory type",
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 3,
-                      "description": "Accessory type for SSIDs sensor Home app",
-                      "anyOf": [
-                        {
-                          "title": "Disabled",
-                          "enum": [
-                            0
+                    "control": {
+                      "title": "Control",
+                      "type": "object",
+                      "properties": {
+                        "displayType": {
+                          "title": "Accessory type",
+                          "type": "integer",
+                          "description": "Accessory type for SSID control in Home app",
+                          "minimum": 0,
+                          "maximum": 3,
+                          "anyOf": [
+                            {
+                              "title": "Disabled",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            {
+                              "title": "Switch",
+                              "enum": [
+                                1
+                              ]
+                            },
+                            {
+                              "title": "Outlet",
+                              "enum": [
+                                2
+                              ]
+                            },
+                            {
+                              "title": "Lightbulb",
+                              "enum": [
+                                3
+                              ]
+                            }
                           ]
                         },
-                        {
-                          "title": "Motion Sensor",
-                          "enum": [
-                            1
-                          ]
-                        },
-                        {
-                          "title": "Occupancy Sensor",
-                          "enum": [
-                            2
-                          ]
-                        },
-                        {
-                          "title": "Contact Sensor",
-                          "enum": [
-                            3
-                          ]
+                        "namePrefix": {
+                          "title": "Prefix",
+                          "type": "boolean",
+                          "description": "Here enable the device name as a prefix for SSID control name",
+                          "condition": {
+                            "functionBody": "return model.devices[arrayIndices].wireless.ssid.control.displayType > 0;"
+                          }
                         }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true"
                       }
                     },
-                    "namePrefix": {
-                      "title": "Prefix",
-                      "type": "boolean",
-                      "description": "Here enable the access point name as a prefix for SSIDs sensor name",
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].apDevice.enable === true && model.devices[arrayIndices].apDevice.sensor.displayType > 0;"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "swDevice": {
-              "title": "Access point",
-              "type": "object",
-              "properties": {
-                "enable": {
-                  "title": "Enable",
-                  "type": "boolean",
-                  "description": "Here enable this switch."
-                },
-                "name": {
-                  "title": "Switch Name",
-                  "type": "string",
-                  "placeholder": "Switch Name",
-                  "description": "Here set the name to be displayed in Homebridge/HomeKit for this switch.",
-                  "condition": {
-                    "functionBody": "return model.devices[arrayIndices].swDevice.enable === true;"
-                  }
-                },
-                "control": {
-                  "title": "Ports Control",
-                  "type": "object",
-                  "properties": {
-                    "displayType": {
-                      "title": "Accessory type",
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 3,
-                      "description": "Accessory type for Ports control in Home app",
-                      "anyOf": [
-                        {
-                          "title": "Disabled",
-                          "enum": [
-                            0
+                    "sensor": {
+                      "title": "Control",
+                      "type": "object",
+                      "properties": {
+                        "displayType": {
+                          "title": "Accessory type",
+                          "type": "integer",
+                          "description": "Accessory type for SSID sensor in Home app",
+                          "minimum": 0,
+                          "maximum": 3,
+                          "anyOf": [
+                            {
+                              "title": "Disabled",
+                              "enum": [
+                                0
+                              ]
+                            },
+                            {
+                              "title": "Motion Sensor",
+                              "enum": [
+                                1
+                              ]
+                            },
+                            {
+                              "title": "Occupancy Sensor",
+                              "enum": [
+                                2
+                              ]
+                            },
+                            {
+                              "title": "Contact Sensor",
+                              "enum": [
+                                3
+                              ]
+                            }
                           ]
                         },
-                        {
-                          "title": "Switch",
-                          "enum": [
-                            1
-                          ]
-                        },
-                        {
-                          "title": "Outlet",
-                          "enum": [
-                            2
-                          ]
-                        },
-                        {
-                          "title": "Lightbulb",
-                          "enum": [
-                            3
-                          ]
+                        "namePrefix": {
+                          "title": "Prefix",
+                          "type": "boolean",
+                          "description": "Here enable the device name as a prefix for SSID sensor name",
+                          "condition": {
+                            "functionBody": "return model.devices[arrayIndices].wireless.ssid.sensor.displayType > 0;"
+                          }
                         }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
-                      }
-                    },
-                    "namePrefix": {
-                      "title": "Prefix",
-                      "type": "boolean",
-                      "description": "Here enable the accessory name as a prefix for Ports control name",
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.control.displayType > 0;"
-                      }
-                    }
-                  }
-                },
-                "sensor": {
-                  "title": "Ports Sensor",
-                  "type": "object",
-                  "properties": {
-                    "displayType": {
-                      "title": "Accessory type",
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 3,
-                      "description": "Accessory type for Ports sensor in Home app",
-                      "anyOf": [
-                        {
-                          "title": "Disabled",
-                          "enum": [
-                            0
-                          ]
-                        },
-                        {
-                          "title": "Motion Sensor",
-                          "enum": [
-                            1
-                          ]
-                        },
-                        {
-                          "title": "Occupancy Sensor",
-                          "enum": [
-                            2
-                          ]
-                        },
-                        {
-                          "title": "Contact Sensor",
-                          "enum": [
-                            3
-                          ]
-                        }
-                      ],
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true"
-                      }
-                    },
-                    "namePrefix": {
-                      "title": "Prefix",
-                      "type": "boolean",
-                      "description": "Here enable the accessory name as a prefix for Ports sensor name",
-                      "condition": {
-                        "functionBody": "return model.devices[arrayIndices].swDevice.enable === true && model.devices[arrayIndices].swDevice.sensor.displayType > 0;"
                       }
                     }
                   }
@@ -646,6 +612,7 @@
               },
               "then": {
                 "required": [
+                  "name",
                   "host"
                 ]
               }
@@ -677,61 +644,68 @@
               "title": "{{ value.title }}",
               "items": [
                 {
-                  "key": "devices[].apDevice",
-                  "title": "Access Point",
+                  "key": "devices[].wireless",
+                  "title": "Wireless",
                   "items": [
-                    "devices[].apDevice.enable",
-                    "devices[].apDevice.name",
                     {
-                      "key": "devices[].apDevice",
+                      "key": "devices[].wireless",
                       "type": "tabarray",
                       "title": "{{ value.title }}",
                       "items": [
                         {
-                          "key": "devices[].apDevice.control",
-                          "title": "Control",
+                          "title": "Radio",
                           "items": [
-                            "devices[].apDevice.control.displayType",
-                            "devices[].apDevice.control.namePrefix"
+                            {
+                              "key": "devices[].wireless.radio",
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
+                              "items": [
+                                {
+                                  "key": "devices[].wireless.radio.control",
+                                  "title": "Control",
+                                  "items": [
+                                    "devices[].wireless.radio.control.displayType",
+                                    "devices[].wireless.radio.control.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[].wireless.radio.sensor",
+                                  "title": "Sensor",
+                                  "items": [
+                                    "devices[].wireless.radio.sensor.displayType",
+                                    "devices[].wireless.radio.sensor.namePrefix"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
-                          "key": "devices[].apDevice.sensor",
-                          "title": "Sensor",
+                          "title": "SSID",
                           "items": [
-                            "devices[].apDevice.sensor.displayType",
-                            "devices[].apDevice.sensor.namePrefix"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "key": "devices[].swDevice",
-                  "title": "Switch",
-                  "items": [
-                    "devices[].swDevice.enable",
-                    "devices[].swDevice.name",
-                    {
-                      "key": "devices[].swDevice",
-                      "type": "tabarray",
-                      "title": "{{ value.title }}",
-                      "items": [
-                        {
-                          "key": "devices[].swDevice.control",
-                          "title": "Control",
-                          "items": [
-                            "devices[].swDevice.control.displayType",
-                            "devices[].swDevice.control.namePrefix"
-                          ]
-                        },
-                        {
-                          "key": "devices[].swDevice.sensor",
-                          "title": "Sensor",
-                          "items": [
-                            "devices[].swDevice.sensor.displayType",
-                            "devices[].swDevice.sensor.namePrefix"
+                            {
+                              "key": "devices[].wireless.ssid",
+                              "type": "tabarray",
+                              "title": "{{ value.title }}",
+                              "items": [
+                                {
+                                  "key": "devices[].wireless.ssid.control",
+                                  "title": "Control",
+                                  "items": [
+                                    "devices[].wireless.ssid.control.displayType",
+                                    "devices[].wireless.ssid.control.namePrefix"
+                                  ]
+                                },
+                                {
+                                  "key": "devices[].wireless.ssid.sensor",
+                                  "title": "Sensor",
+                                  "items": [
+                                    "devices[].wireless.ssid.sensor.displayType",
+                                    "devices[].wireless.ssid.sensor.namePrefix"
+                                  ]
+                                }
+                              ]
+                            }
                           ]
                         }
                       ]

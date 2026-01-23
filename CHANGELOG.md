@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Warning
 
+- After update to v0.1.0 the plugin need to be reconfigured!
+
+## [0.1.0] - (22.01.2026)
+
+## Changes
+
+- after update to v0.1.0 the plugin need to be reconfigured!
+- added support to add radios dynamically without restart plugin
+- added support to add ssids dynamically without restart plugin
+- config validation improvements
+- code refactor
+- config schema update
+- readme updated
+- cleanup
+
 ## [0.0.9] - (20.01.2026)
 
 ## Changes

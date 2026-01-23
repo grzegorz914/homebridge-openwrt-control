@@ -27,15 +27,16 @@
 
 ## About The Plugin
 
+* Router:
+  * Buttons:
+    * System reboot.
+    * Network reload.
+    * WiFi reload.
 * Access Point:
+  * Radios `ON/OFF` state control.
+  * Radios `ON/OFF` state monitor.
   * SSIDs `ON/OFF` state control.
   * SSIDs `ON/OFF` state monitor.
-* Switch Port:
-  * Comming soon.
-* Buttons:
-  * System reboot.
-  * Network reload.
-  * WiFi reload.
 * Siri:
   * SSIDs set `ON/OFF` control.
   * SSIDs get `ON/OFF` state.
@@ -61,29 +62,26 @@
 | `auth.enable` | Here enable authorizatin credentials. |
 | `auth.user` | Here set the authorization `Username`. |
 | `auth.passwd` | Here set the authorization `Password`. |
-| `apDevice{}` | Access point object. |
-| `apDevice.enable` | Here enable access point support. |
-| `apDevice.name` | Here set access point name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `apDevice.control{}` | Access point `SSIDs` control object. |
-| `apDevice.control.displayType` | Aaccessory type for `SSIDs` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `apDevice.control.namePrefix` | Here enable access point name as a prefix for `SSIDs` control name. |
-| `apDevice.sensor{}` | Access point `SSIDs` sensor object. |
-| `apDevice.sensor.displayType` | Accessory type for `SSIDs` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `apDevice.sensor.namePrefix` | Here enable access point name as a prefix for `SSIDs` sensor name. |
-| `swDevice{}` | Switch object. |
-| `swDevice.enable` | Here enable switch support. |
-| `swDevice.name` | Here set switch name or leave empty, this name will by displayed in Homebridge/Home app. |
-| `swDevice.control{}` | Switch control. |
-| `swDevice.control.displayType` | Accessory type for `Ports` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `swDevice.control.namePrefix` | Here enable switch name as a prefix for `Ports` control name. |
-| `swDevice.sensor{}` | Switch sensor object. |
-| `swDevice.sensor.displayType` | Acessory type for `Ports` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `swDevice.sensor.namePrefix` | Here enable switch name as a prefix for `Ports` sensor name. |
+| `wireless{}` | Wireless object. |
+| `wireless.radio{}` | Radio object. |
+| `wireless.radio.control{}` | Wireless `Radio` control object. |
+| `wireless.radio.control.displayType` | Aaccessory type for `Radio` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
+| `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
+| `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
+| `wireless.ssid{}` | Radio object. |
+| `wireless.ssid.control{}` | Wireless `SSID` control object. |
+| `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `wireless.ssid.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
+| `wireless.ssid.sensor{}` | Wireless `SSID` sensor object. |
+| `wireless.ssid.sensor.displayType` | Accessory type for `SSID` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `wireless.ssid.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Accessory type for `Buttons` in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
 | `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
-| `buttons[].namePrefix` | Here enable device name as a prefix for the button name. |
+| `buttons[].namePrefix` | Here enable device name as a prefix for the `Button` name. |
 | `refreshInterval` | Here set the data refresh time in seconds. |
 | `log.deviceInfo` | If enabled, log device info will be displayed by every connections device to the network. |
 | `log.success` | If enabled, success log will be displayed in console. |
@@ -112,7 +110,7 @@ Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| GET | `http//ip:port` | `info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -126,7 +124,7 @@ Subscribe using JSON `{ "SystemReboot": true }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessStatus: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| Publish | `Info` | `{ state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |

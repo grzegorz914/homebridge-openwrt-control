@@ -1,8 +1,7 @@
 import { join } from 'path';
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import OpenWrt from './src/openwrt.js';
-import AccessPoint from './src/accesspoint.js';
-import Switch from './src/switch.js';
+import Router from './src/router.js';
 import ImpulseGenerator from './src/impulsegenerator.js';
 import { PluginName, PlatformName } from './src/constants.js';
 
@@ -31,15 +30,7 @@ class OpenWrtPlatform {
           log.warn(`Device: ${host || 'host missing'},  ${name || 'name missing'}, ${!displayType ? ', display type disabled' : ''} in config, will not be published in the Home app`);
           continue;
         }
-        const apDevice = device.apDevice || {};
-        const swDevice = device.swDevice || {};
         const refreshInterval = (device.refreshInterval ?? 5) * 1000;
-
-        //check enabled devices
-        const configuredDevices = [];
-        if (apDevice.enable) configuredDevices.push(0);
-        //if (swDevice.enable) configuredDevices.push(1); not supported yet
-        if (configuredDevices.length === 0) continue;
 
         //log config
         const logLevel = {
@@ -74,7 +65,6 @@ class OpenWrtPlatform {
           const impulseGenerator = new ImpulseGenerator()
             .on('start', async () => {
               try {
-
                 const openWrt = new OpenWrt(device)
                   .on('success', msg => logLevel.success && log.success(`Device: ${host}, ${msg}`))
                   .on('info', msg => log.info(`Device: ${host} ${name}, ${msg}`))
@@ -92,32 +82,18 @@ class OpenWrtPlatform {
                 // start openwrt impulse generator
                 await openWrt.impulseGenerator.state(true, [{ name: 'connect', sampling: refreshInterval }], false);
 
-                for (const deviceType of configuredDevices) {
-                  let configuredDevice;
-                  switch (deviceType) {
-                    case 0:
-                      configuredDevice = new AccessPoint(api, device, openWrt, openWrtInfo);
-                      break;
-                    case 1:
-                      configuredDevice = new Switch(api, device, openWrt, openWrtInfo);
-                      break;
-                    default:
-                      if (logLevel.warn) log.warn(`Device: ${host} ${name}, class not found for: ${deviceType}`);
-                      return;
-                  }
+                const router = new Router(api, device, openWrt, openWrtInfo)
+                  .on('devInfo', msg => logLevel.devInfo && log.info(msg))
+                  .on('success', msg => logLevel.success && log.success(`Device: ${host} ${name}, ${msg}`))
+                  .on('info', msg => log.info(`Device: ${host} ${name}, ${msg}`))
+                  .on('debug', msg => log.info(`Device: ${host} ${name}, debug: ${msg}`))
+                  .on('warn', msg => log.warn(`Device: ${host} ${name}, ${msg}`))
+                  .on('error', msg => log.error(`Device: ${host} ${name}, ${msg}`));
 
-                  configuredDevice.on('devInfo', msg => logLevel.devInfo && log.info(msg))
-                    .on('success', msg => logLevel.success && log.success(`Device: ${host} ${name}, ${msg}`))
-                    .on('info', msg => log.info(`Device: ${host} ${name}, ${msg}`))
-                    .on('debug', msg => log.info(`Device: ${host} ${name}, debug: ${msg}`))
-                    .on('warn', msg => log.warn(`Device: ${host} ${name}, ${msg}`))
-                    .on('error', msg => log.error(`Device: ${host} ${name}, ${msg}`));
-
-                  const accessory = await configuredDevice.start();
-                  if (accessory) {
-                    api.publishExternalAccessories(PluginName, [accessory]);
-                    if (logLevel.success) log.success(`Device: ${host} ${name}, Published as external accessory.`);
-                  }
+                const accessory = await router.start();
+                if (accessory) {
+                  api.publishExternalAccessories(PluginName, [accessory]);
+                  if (logLevel.success) log.success(`Device: ${host} ${name}, Published as external accessory.`);
                 }
 
                 // stop accessory impulse generator

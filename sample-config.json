@@ -17,9 +17,10 @@
     "platforms": [
         {
             "platform": "OpenWrt",
+            "name": "OpenWrt",
             "devices": [
                 {
-                    "name": "OpenWrt",
+                    "name": "OpenWrt Router",
                     "host": "192.168.1.5",
                     "auth": {
                         "enable": true,
@@ -27,36 +28,28 @@
                         "passwd": "password"
                     },
                     "displayType": 1,
-                    "apDevice": [
-                        {
-                            "enable": false,
-                            "name": "My Access Point",
-                            "namePrefix": false,
+                    "wireless": {
+                        "radio": {
                             "control": {
-                                "displayType": 1,
+                                "displayType": 2,
                                 "namePrefix": false
                             },
                             "sensor": {
-                                "displayType": 1,
+                                "displayType": 3,
                                 "namePrefix": false
                             }
-                        }
-                    ],
-                    "swDevice": [
-                        {
-                            "enable": false,
-                            "name": "My Switch",
-                            "namePrefix": false,
+                        },
+                        "ssid": {
                             "control": {
-                                "displayType": 1,
+                                "displayType": 2,
                                 "namePrefix": false
                             },
                             "sensor": {
-                                "displayType": 1,
+                                "displayType": 3,
                                 "namePrefix": false
                             }
                         }
-                    ],
+                    },
                     "buttons": [
                         {
                             "displayType": 0,
