@@ -48,7 +48,9 @@ class Router extends EventEmitter {
         openWrt.on('openWrtInfo', async (openWrtInfo) => {
             this.openWrtInfo = openWrtInfo;
             this.informationService?.updateCharacteristic(Characteristic.FirmwareRevision, openWrtInfo.systemInfo.release?.version);
-            this.routerService?.updateCharacteristic(Characteristic.WiFiSatelliteStatus, 1);
+
+            const linkUp = openWrtInfo.linkUp ? 1 : 2; // 0= Not Supported, 1=Connected, 2=Disconnected
+            this.routerService?.updateCharacteristic(Characteristic.WiFiSatelliteStatus, linkUp);
 
             // RADIOS
             const currentRadios = [];
@@ -266,12 +268,12 @@ class Router extends EventEmitter {
             service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
             service.getCharacteristic(Characteristic.On)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessRadios
-                        .find(r => r.device === name && r.band === band);
+                    const current = this.openWrtInfo.wirelessRadios.find(r => r.device === name && r.band === band);
                     return current ? !current.disabled : false;
                 })
                 .onSet(async (state) => {
-                    await this.openWrt.send('radio', null, name, state);
+                    const restart = this.wirelessRadioControl.restart;
+                    await this.openWrt.send('radio', null, name, state, restart);
                 });
 
             this.radioServices.push(service);
@@ -361,7 +363,10 @@ class Router extends EventEmitter {
         routerService.addOptionalCharacteristic(Characteristic.ConfiguredName);
         routerService.setCharacteristic(Characteristic.ConfiguredName, this.name);
         routerService.getCharacteristic(Characteristic.WiFiSatelliteStatus)
-            .onGet(() => 1); // 0= Not Supported, 1=Connected, 2=Disconnected
+            .onGet(async () => {
+                const linkUp = this.openWrtInfo.linkUp ? 1 : 2; // 0= Not Supported, 1=Connected, 2=Disconnected
+                return linkUp;
+            })
 
         this.routerService = routerService;
         accessory.addService(routerService);

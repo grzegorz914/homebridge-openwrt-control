@@ -32,6 +32,7 @@
                         "radio": {
                             "control": {
                                 "displayType": 2,
+                                "restart": false,
                                 "namePrefix": false
                             },
                             "sensor": {

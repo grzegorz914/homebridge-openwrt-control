@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
-## [0.1.0] - (22.01.2026)
+## [0.2.0] - (23.01.2026)
+
+## Changes
+
+- added link state monitoring
+- added support radio restart instead of toggle on/off
+- config schema updated
+- readme updated
+- cleanup
+
+## [0.1.0] - (23.01.2026)
 
 ## Changes
 

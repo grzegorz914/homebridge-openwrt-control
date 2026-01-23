@@ -28,18 +28,20 @@
 ## About The Plugin
 
 * Router:
-  * Buttons:
+  * Control:
     * System reboot.
     * Network reload.
-    * WiFi reload.
-* Access Point:
-  * Radios `ON/OFF` state control.
-  * Radios `ON/OFF` state monitor.
-  * SSIDs `ON/OFF` state control.
-  * SSIDs `ON/OFF` state monitor.
-* Siri:
-  * SSIDs set `ON/OFF` control.
-  * SSIDs get `ON/OFF` state.
+    * Wireless reload.
+  * Sensor:
+    * Link `Up/Down`.
+* Wireless:
+  * Control:
+    * Radio `On/Off/Restart`.
+    * SSID `On/Off`.
+  * Sensor:
+    * Radio `On/Off`.
+    * SSID `On/Off`.
+* Siri control of all functions.
 * Home automations and shortcuts can be used for all available functions.
 * External integrations include: [REST](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#mqtt-integration).
 
@@ -69,6 +71,7 @@
 | `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
 | `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
 | `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `wireless.radio.control.restart` | Here enable restart `Radio` instead of toggle. |
 | `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
 | `wireless.ssid{}` | Wireless `SSID` object. |
 | `wireless.ssid.control{}` | Wireless `SSID` control object. |

@@ -92,13 +92,22 @@ class OpenWrt extends EventEmitter {
 
     async connect() {
         try {
-            const openWrtInfo = { state: false, info: '', systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [] };
+            const openWrtInfo = { state: false, info: '', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [] };
 
             // System info
             const systemInfo = await this.ubusCall('system', 'board');
             if (this.logDebug) this.emit('debug', `System info data: ${JSON.stringify(systemInfo, null, 2)}`);
 
-            // Wireless UCI
+            // Link status
+            const networkInterfaces = await this.ubusCall('network.interface', 'dump');
+            if (this.logDebug) this.emit('debug', `Network interfaces data: ${JSON.stringify(networkInterfaces, null, 2)}`);
+            const interfaces = networkInterfaces?.interface || [];
+            const linkUp = interfaces.some(iface => {
+                if (!iface?.up) return false;
+                return ((Array.isArray(iface['ipv4-address']) && iface['ipv4-address'].length > 0) || (Array.isArray(iface['ipv6-address']) && iface['ipv6-address'].length > 0));
+            });
+
+            // Wireless
             const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' });
             if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(wirelessInfo, null, 2)}`);
 
@@ -165,7 +174,9 @@ class OpenWrt extends EventEmitter {
             // Final object
             openWrtInfo.state = true;
             openWrtInfo.info = 'Connect Success';
+            openWrtInfo.linkUp = linkUp;
             openWrtInfo.systemInfo = systemInfo;
+            openWrtInfo.networkInfo = networkInterfaces;
             openWrtInfo.wirelessInfo = wirelessInfo;
             openWrtInfo.wirelessRadios = radios;
             openWrtInfo.wirelessSsids = normalizedSsids;
@@ -179,14 +190,25 @@ class OpenWrt extends EventEmitter {
     }
 
 
-    async send(type, radio, name, state, command) {
+    async send(type, radio, name, state, command, restart = false) {
         switch (type) {
             case 'router':
                 break;
             case 'radio':
                 await this.handleWithLock(async () => {
-                    if (this.logDebug) this.emit('debug', `${state ? 'Enabling' : 'Disabling'} radio ${name}`);
+                    if (this.logDebug) this.emit('debug', `${restart ? 'Restart' : state ? 'Enabling' : 'Disabling'} radio ${name}`);
 
+                    // Restart radio
+                    if (restart) {
+                        // Restart radio by disabling and enabling it
+                        await this.ubusCall('network.wireless', 'down', { device: name });
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await this.ubusCall('network.wireless', 'up', { device: name });
+                        if (this.logDebug) this.emit('debug', `Radio ${name} restarted`);
+                        return;
+                    }
+
+                    // Toggle radio state
                     // Get wireless config with UCI
                     const wirelessConfig = await this.ubusCall('uci', 'get', { config: 'wireless' });
 

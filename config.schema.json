@@ -12,7 +12,7 @@
       "name": {
         "title": "Platform",
         "type": "string",
-        "default": "OpenWrt"
+        "default": "OpenWrt Control"
       },
       "devices": {
         "type": "array",
@@ -144,6 +144,14 @@
                               ]
                             }
                           ]
+                        },
+                        "restart": {
+                          "title": "Restart",
+                          "type": "boolean",
+                          "description": "Here enable restart Radio instead of toggle.",
+                          "condition": {
+                            "functionBody": "return model.devices[arrayIndices].wireless.radio.control.displayType > 0;"
+                          }
                         },
                         "namePrefix": {
                           "title": "Prefix",
@@ -665,6 +673,7 @@
                                   "title": "Control",
                                   "items": [
                                     "devices[].wireless.radio.control.displayType",
+                                    "devices[].wireless.radio.control.restart",
                                     "devices[].wireless.radio.control.namePrefix"
                                   ]
                                 },
