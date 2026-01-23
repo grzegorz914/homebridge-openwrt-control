@@ -70,13 +70,13 @@
 | `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
 | `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
 | `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
-| `wireless.ssid{}` | Radio object. |
+| `wireless.ssid{}` | SSID object. |
 | `wireless.ssid.control{}` | Wireless `SSID` control object. |
 | `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `wireless.ssid.control.namePrefix` | Here enable device name as a prefix for `Radios` control name. |
+| `wireless.ssid.control.namePrefix` | Here enable device name as a prefix for `SSID` control name. |
 | `wireless.ssid.sensor{}` | Wireless `SSID` sensor object. |
 | `wireless.ssid.sensor.displayType` | Accessory type for `SSID` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `wireless.ssid.sensor.namePrefix` | Here enable device name as a prefix for `Radios` sensor name. |
+| `wireless.ssid.sensor.namePrefix` | Here enable device name as a prefix for `SSID` sensor name. |
 | `buttons[]` | Buttons array. |
 | `buttons[].displayType` | Accessory type for `Buttons` in HomeKit app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
 | `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
