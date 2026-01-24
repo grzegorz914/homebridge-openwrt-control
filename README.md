@@ -24,6 +24,12 @@
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
 | [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) | [Homebridge UI Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge User Interface | Recommended |
 | [OpenWrt Control](https://www.npmjs.com/package/homebridge-openwrt-control) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-openwrt-control/wiki) | Homebridge Plug-In | Required |
+| [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/src/homebridgeacl.json) | paste in `/usr/share/rpcd/acl.d/` folder | ACL Control | Required |
+
+## Note
+
+* To controll all functions need to download [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/src/homebridgeacl.json) and put in `/usr/share/rpcd/acl.d/` folder on your router.
+* Next You need restart OpenWrt or RPCD service.
 
 ## About The Plugin
 
@@ -37,7 +43,7 @@
 * Wireless:
   * Control:
     * Radio `On/Off/Restart`.
-    * SSID `On/Off`.
+    * SSID `On/Off/Change Name`.
   * Sensor:
     * Radio `On/Off`.
     * SSID `On/Off`.
@@ -59,7 +65,7 @@
 | --- | --- |
 | `name` | Here set Your own device name. |
 | `host` | Here set the device `IP Address` or `Hostname`.|
-| `displayType` | Here set the device state: `0 - Disable`, `1 - Enable`. |
+| `displayType` | Here set the device state: `0 - Disabled`, `1 - Enabled`. |
 | `auth{}` | Authorization object. |
 | `auth.enable` | Here enable authorizatin credentials. |
 | `auth.user` | Here set the authorization `Username`. |
@@ -67,21 +73,19 @@
 | `wireless{}` | Wireless object. |
 | `wireless.radio{}` | Wireless `Radio` object. |
 | `wireless.radio.control{}` | Wireless `Radio` control object. |
-| `wireless.radio.control.displayType` | Aaccessory type for `Radio` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
+| `wireless.radio.control.displayType` | Aaccessory type for `Radio` control in Home app: `0 - Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`, `4 - Fan`. |
 | `wireless.radio.control.namePrefix` | Here enable device name as a prefix for `Radio` control name. |
 | `wireless.radio.sensor{}` | Wireless `Radio` sensor object. |
-| `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
+| `wireless.radio.sensor.displayType` | Accessory type for `Radio` sensor in Home app: `0 - Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `wireless.radio.control.restart` | Here enable restart `Radio` instead of toggle. |
 | `wireless.radio.sensor.namePrefix` | Here enable device name as a prefix for `Radio` sensor name. |
 | `wireless.ssid{}` | Wireless `SSID` object. |
 | `wireless.ssid.control{}` | Wireless `SSID` control object. |
-| `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0` - Disabled, `1` - Switch, `2` - Outlet, `3` - Lightbulb. |
-| `wireless.ssid.control.namePrefix` | Here enable device name as a prefix for `SSID` control name. |
+| `wireless.ssid.control.displayType` | Aaccessory type for `SSID` control in Home app: `0 - Disabled`, `1 - Switch`, `2 - Outlet`, `3 - Lightbulb`, `4 - Fan`. |
 | `wireless.ssid.sensor{}` | Wireless `SSID` sensor object. |
-| `wireless.ssid.sensor.displayType` | Accessory type for `SSID` sensor in Home app: `0` - Disabled, `1` - Motion Sensor, `2` - Occupancy Sensor, `3` - Contact Sensor. |
-| `wireless.ssid.sensor.namePrefix` | Here enable device name as a prefix for `SSID` sensor name. |
+| `wireless.ssid.sensor.displayType` | Accessory type for `SSID` sensor in Home app: `0 - Disabled`, `1 - Motion Sensor`, `2 - Occupancy Sensor`, `3 - Contact Sensor`. |
 | `buttons[]` | Buttons array. |
-| `buttons[].displayType` | Accessory type for `Button` in Home app, possible `0` - Disabled, `1` - Outlet, `2` - Switch. |
+| `buttons[].displayType` | Accessory type for `Button` in Home app, possible `0 - Disabled`, `1 - Outlet`, `2 - Switch`. |
 | `buttons[].name` | Here set button `Name` which You want expose to the `Homebridge/HomeKit`.|
 | `buttons[].command` | Here choose command which will be assigned to the button. |
 | `buttons[].namePrefix` | Here enable device name as a prefix for the `Button` name. |
@@ -119,7 +123,7 @@ Path `status` response all available paths.
 | --- | --- | --- | --- | --- | --- |
 | POST | `http//ip:port` | `SystemReboot` | `true` | boolean | Reboot device |
 |      | `http//ip:port` | `NetworkReload` | `true` | boolean | Network reload |
-|      | `http//ip:port` | `WiFiReload` | `true` | boolean | Wireless Reload |
+|      | `http//ip:port` | `WirelessReload` | `true` | boolean | Wireless Reload |
 
 ### MQTT Integration
 
@@ -133,4 +137,4 @@ Subscribe using JSON `{ "SystemReboot": true }`
 | --- | --- | --- | --- | --- | --- |
 | Subscribe | `Set` | `SystemReboot` | `true` | boolean | Reboot device |
 |           | `Set` | `NetworkReload` | `true` | boolean | Network reload |
-|           | `Set` | `WiFiReload` | `true` | boolean | Wireless Reload |
+|           | `Set` | `WirelessReload` | `true` | boolean | Wireless Reload |

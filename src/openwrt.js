@@ -2,11 +2,11 @@ import EventEmitter from 'events';
 import axios from 'axios';
 import Functions from './functions.js';
 import ImpulseGenerator from './impulsegenerator.js';
+import { AclPath, AclData } from './constants.js';
 
 class OpenWrt extends EventEmitter {
     constructor(config) {
         super();
-
         this.user = config.auth?.user || 'root';
         this.passwd = config.auth?.passwd;
         this.logError = config.log?.error;
@@ -16,6 +16,7 @@ class OpenWrt extends EventEmitter {
         this.restFulEnabled = config.restFul?.enable || false;
         this.mqttEnabled = config.mqtt?.enable || false;
 
+        this.firstConnect = true;
         this.lock = false;
         this.sessionId = null;
         this.sessionExpiresAt = 0;
@@ -112,29 +113,25 @@ class OpenWrt extends EventEmitter {
             if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(wirelessInfo, null, 2)}`);
 
             // Radio -> band map
-            const radioBandMap = Object.entries(wirelessInfo?.values || {})
-                .filter(([, data]) => data['.type'] === 'wifi-device')
-                .reduce((map, [, data]) => {
-                    if (data.band === '2g') map[data['.name']] = '2.4GHz';
-                    else if (data.band === '5g') map[data['.name']] = '5GHz';
-                    else map[data['.name']] = 'unknown';
-                    return map;
-                }, {});
+            const radioBandMap = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-device').reduce((map, [, data]) => {
+                if (data.band === '2g') map[data['.name']] = '2.4GHz';
+                else if (data.band === '5g') map[data['.name']] = '5GHz';
+                else map[data['.name']] = 'unknown';
+                return map;
+            }, {});
 
             // Radios list
-            const radios = Object.entries(wirelessInfo?.values || {})
-                .filter(([, data]) => data['.type'] === 'wifi-device')
-                .map(([key, data]) => {
-                    const deviceName = data.device || data['.name'] || key;
-                    const band = radioBandMap[deviceName] || 'unknown';
-                    const disabled = data.disabled === '1';
+            const radios = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-device').map(([key, data]) => {
+                const deviceName = data.device || data['.name'] || key;
+                const band = radioBandMap[deviceName] || 'unknown';
+                const disabled = data.disabled === '1';
 
-                    return {
-                        device: deviceName,
-                        band,
-                        disabled
-                    };
-                });
+                return {
+                    device: deviceName,
+                    band,
+                    disabled
+                };
+            });
 
             // Radio disabled map
             const radioDisabledMap = radios.reduce((map, radio) => {
@@ -143,24 +140,22 @@ class OpenWrt extends EventEmitter {
             }, {});
 
             // SSIDs list
-            const ssids = Object.entries(wirelessInfo?.values || {})
-                .filter(([, data]) => data['.type'] === 'wifi-iface')
-                .map(([key, data]) => {
-                    const ifaceName = data['.name'] || key;
-                    const radioName = data.device || null;
-                    const band = radioBandMap[radioName] || 'unknown';
-                    const disabled = data.disabled === '1';
+            const ssids = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-iface').map(([key, data]) => {
+                const ifaceName = data['.name'] || key;
+                const radioName = data.device || null;
+                const band = radioBandMap[radioName] || 'unknown';
+                const disabled = data.disabled === '1';
 
-                    return {
-                        ifname: ifaceName,
-                        device: radioName,
-                        band,
-                        name: data.ssid || null,
-                        mode: data.mode || null,
-                        hidden: data.hidden === '1' || data.hidden === true,
-                        disabled
-                    };
-                });
+                return {
+                    ifname: ifaceName,
+                    device: radioName,
+                    band,
+                    name: data.ssid || null,
+                    mode: data.mode || null,
+                    hidden: data.hidden === '1' || data.hidden === true,
+                    disabled
+                };
+            });
 
             // Apply radio disabled -> SSID disabled
             const normalizedSsids = ssids.map(ssid => {
@@ -189,82 +184,84 @@ class OpenWrt extends EventEmitter {
         }
     }
 
-
-    async send(type, radio, name, state, command, restart = false) {
+    async send(type, radioName, ssidName, newSsidName = null, state, command, restart = false) {
         switch (type) {
             case 'router':
                 break;
             case 'radio':
                 await this.handleWithLock(async () => {
-                    if (this.logDebug) this.emit('debug', `${restart ? 'Restart' : state ? 'Enabling' : 'Disabling'} radio ${name}`);
+                    if (this.logDebug) this.emit('debug', `${restart ? 'Restart' : state ? 'Enabling' : 'Disabling'} radio ${radioName}`);
 
                     // Restart radio
-                    if (restart) {
-                        // Restart radio by disabling and enabling it
-                        await this.ubusCall('network.wireless', 'down', { device: name });
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        await this.ubusCall('network.wireless', 'up', { device: name });
-                        if (this.logDebug) this.emit('debug', `Radio ${name} restarted`);
-                        return;
-                    }
+                    if (!restart) {
+                        // Toggle radio
+                        // Get wireless config with UCI
+                        const wirelessConfig = await this.ubusCall('uci', 'get', { config: 'wireless' });
 
-                    // Toggle radio state
-                    // Get wireless config with UCI
-                    const wirelessConfig = await this.ubusCall('uci', 'get', { config: 'wireless' });
+                        // Find radio device
+                        const radioEntries = Object.entries(wirelessConfig.values || {}).filter(([, data]) => data['.type'] === 'wifi-device' && data['.name'] === radioName);
 
-                    // Find radio device
-                    const radioEntries = Object.entries(wirelessConfig.values || {}).filter(([, data]) => data['.type'] === 'wifi-device' && data['.name'] === name);
-
-                    if (radioEntries.length === 0) {
-                        throw new Error(`Radio ${name} not found`);
-                    }
-
-                    for (const [, radioData] of radioEntries) {
-                        const section = radioData['.name'];
-
-                        if (!section) {
-                            if (this.logWarn) this.emit('warn', `Skipping radio ${name} (missing section)`);
-                            continue;
+                        if (radioEntries.length === 0) {
+                            throw new Error(`Radio ${radioName} not found`);
                         }
 
-                        await this.ubusCall('uci', 'set', { config: 'wireless', section, values: { disabled: state ? '0' : '1' } });
+                        for (const [, radioData] of radioEntries) {
+                            const section = radioData['.name'];
+
+                            if (!section) {
+                                if (this.logWarn) this.emit('warn', `Skipping radio ${radioName} (missing section)`);
+                                continue;
+                            }
+
+                            await this.ubusCall('uci', 'set', { config: 'wireless', section, values: { disabled: state ? '0' : '1' } });
+                        }
+
+                        // Commit
+                        await this.ubusCall('uci', 'commit', { config: 'wireless' });
+                        if (this.logDebug) this.emit('debug', `Send radio ${radioName} ${state ? 'enabled' : 'disabled'}`);
                     }
 
-                    // Commit + reload
-                    await this.ubusCall('uci', 'commit', { config: 'wireless' });
-                    await this.ubusCall('network.wireless', 'reload');
-
-                    if (this.logDebug) this.emit('debug', `Send radio ${name} ${state ? 'enabled' : 'disabled'}`);
+                    // Reload
+                    await this.ubusCall('network.wireless', 'down', { device: radioName });
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await this.ubusCall('network.wireless', 'up', { device: radioName });
+                    if (this.logDebug) this.emit('debug', `Radio ${radioName} restarted`);
                 });
                 break;
             case 'ssid':
                 await this.handleWithLock(async () => {
-                    if (this.logDebug) this.emit('debug', `${state ? 'Enabling' : 'Disabling'} SSID ${name} on ${radio}`);
+                    if (this.logDebug) this.emit('debug', `${state ? 'Enabling' : 'Disabling'} SSID ${ssidName} on ${radioName}`);
 
                     // Get wireless config with  UCI
                     const wirelessConfig = await this.ubusCall('uci', 'get', { config: 'wireless' });
 
                     // Compare and select interface
-                    const ifaceEntries = Object.entries(wirelessConfig.values || {}).filter(([, data]) => data['.type'] === 'wifi-iface' && data.ssid === name && data.device === radio);
+                    const ifaceEntries = Object.entries(wirelessConfig.values || {}).filter(([, data]) => data['.type'] === 'wifi-iface' && data.ssid === ssidName && data.device === radioName);
                     if (ifaceEntries.length === 0) {
-                        throw new Error(`SSID ${name} not found on radio ${radio}`);
+                        throw new Error(`SSID ${ssidName} not found on radio ${radioName}`);
                     }
 
                     for (const [, ifaceData] of ifaceEntries) {
                         const section = ifaceData['.name'];
 
                         if (!section) {
-                            if (this.logWarn) this.emit('warn', `Skipping SSID ${name} on ${radio} (missing section)`);
+                            if (this.logWarn) this.emit('warn', `Skipping SSID ${ssidName} on ${radioName} (missing section)`);
                             continue;
                         }
 
-                        await this.ubusCall('uci', 'set', { config: 'wireless', section, values: { disabled: state ? '0' : '1' } });
+                        ssidName = newSsidName && (ssidName !== newSsidName) ? newSsidName : ssidName;
+                        await this.ubusCall('uci', 'set', { config: 'wireless', section, values: { ssid: ssidName, disabled: state ? '0' : '1' } });
                     }
 
-                    // Commit + reload
+                    // Commit
                     await this.ubusCall('uci', 'commit', { config: 'wireless' });
-                    await this.ubusCall('network.wireless', 'reload');
-                    if (this.logDebug) this.emit('debug', `Send SSID ${name} on ${radio} ${state ? 'enabled' : 'disabled'}`);
+                    if (this.logDebug) this.emit('debug', `Send SSID ${ssidName} on ${radioName} ${state ? 'enabled' : 'disabled'}`);
+
+                    // Reload
+                    await this.ubusCall('network.wireless', 'down', { device: radioName });
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await this.ubusCall('network.wireless', 'up', { device: radioName });
+                    if (this.logDebug) this.emit('debug', `Radio ${radioName} restarted`);
                 });
                 break;
             case 'button':
@@ -275,7 +272,22 @@ class OpenWrt extends EventEmitter {
                     case 1: //Network reload
                         await this.ubusCall('network', 'reload');
                         break;
-                    case 2: //WiFi reload
+                    case 2: //Wireless reload
+                        await this.ubusCall('network.wireless', 'reload');
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 'externalIntegration':
+                switch (command) {
+                    case 0: //System reboot
+                        await this.ubusCall('system', 'reboot');
+                        break;
+                    case 1: //Network reload
+                        await this.ubusCall('network', 'reload');
+                        break;
+                    case 2: //Wireless reload
                         await this.ubusCall('network.wireless', 'reload');
                         break;
                     default:

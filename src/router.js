@@ -73,9 +73,8 @@ class Router extends EventEmitter {
                         await this.addRadio(radio);
                         added = true;
                     } else {
-                        const characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][this.wirelessRadioControl.displayType];
-                        existing.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(characteristicType, !state);
+                        existing.updateCharacteristic(Characteristic.ConfiguredName, serviceName)
+                            .updateCharacteristic(Characteristic.On, !state);
                     }
                 }
 
@@ -87,9 +86,9 @@ class Router extends EventEmitter {
                     if (!existingSensor && !added) {
                         await this.addRadio(radio);
                     } else if (existingSensor) {
-                        const sensorCharacteristic = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
-                        existingSensor.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(sensorCharacteristic, !state);
+                        const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
+                        existingSensor.updateCharacteristic(Characteristic.ConfiguredName, serviceName)
+                            .updateCharacteristic(characteristicType, !state);
                     }
                 }
             }
@@ -128,16 +127,14 @@ class Router extends EventEmitter {
 
                 // controls
                 if (this.wirelessSsidControl.displayType > 0) {
-                    const serviceName = this.wirelessSsidControl.namePrefix ? `${this.name} ${name} ${band}` : `${name} ${band}`;
                     const existing = this.ssidServices.find(s => s.subtype === ssidId);
 
                     if (!existing) {
                         await this.addSSID(ssid);
                         added = true;
                     } else {
-                        const characteristicType = [null, Characteristic.On, Characteristic.On, Characteristic.On][this.wirelessSsidControl.displayType];
-                        existing.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(characteristicType, !state);
+                        existing.updateCharacteristic(Characteristic.ConfiguredName, name)
+                            .updateCharacteristic(Characteristic.On, !state);
                     }
                 }
 
@@ -149,9 +146,9 @@ class Router extends EventEmitter {
                     if (!existingSensor && !added) {
                         await this.addSSID(ssid);
                     } else if (existingSensor) {
-                        const sensorCharacteristic = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessSsidSensor.displayType];
-                        existingSensor.setCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(sensorCharacteristic, !state);
+                        const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessSsidSensor.displayType];
+                        existingSensor.updateCharacteristic(Characteristic.ConfiguredName, name)
+                            .updateCharacteristic(characteristicType, !state);
                     }
                 }
             }
@@ -215,9 +212,7 @@ class Router extends EventEmitter {
                 host: this.mqtt.host,
                 port: this.mqtt.port || 1883,
                 clientId: `${this.name}_${Math.random().toString(16).slice(3)}`,
-                prefix: this.mqtt.prefix
-                    ? `${this.openWrtInfo.systemInfo.model}/${this.mqtt.prefix}/${this.name}`
-                    : `${this.openWrtInfo.systemInfo.model}/${this.name}`,
+                prefix: this.mqtt.prefix ? `${this.openWrtInfo.systemInfo.model}/${this.mqtt.prefix}/${this.name}` : `${this.openWrtInfo.systemInfo.model}/${this.name}`,
                 user: this.mqtt.auth?.user,
                 passwd: this.mqtt.auth?.passwd,
                 logDebug: this.logDebug
@@ -242,11 +237,11 @@ class Router extends EventEmitter {
 
         switch (key) {
             case 'SystemReboot':
-                return this.openWrt.send('button', null, null, 0);
+                return this.openWrt.send('externalIntegration', null, null, null, 0);
             case 'NetworkReload':
-                return this.openWrt.send('button', null, null, 1);
-            case 'WiFiReload':
-                return this.openWrt.send('button', null, null, 2);
+                return this.openWrt.send('externalIntegration', null, null, null, 1);
+            case 'WirelessReload':
+                return this.openWrt.send('externalIntegration', null, null, null, 2);
             default:
                 this.emit('warn', `${integration} unknown key ${key}`);
                 return false;
@@ -261,8 +256,8 @@ class Router extends EventEmitter {
 
         // control
         if (this.wirelessRadioControl.displayType > 0) {
-            const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][this.wirelessRadioControl.displayType];
             const serviceName = this.wirelessRadioControl.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
+            const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb, Service.Fan][this.wirelessRadioControl.displayType];
             const service = this.accessory.addService(serviceType, serviceName, radioId);
             service.addOptionalCharacteristic(Characteristic.ConfiguredName);
             service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
@@ -273,7 +268,7 @@ class Router extends EventEmitter {
                 })
                 .onSet(async (state) => {
                     const restart = this.wirelessRadioControl.restart;
-                    await this.openWrt.send('radio', null, name, state, restart);
+                    await this.openWrt.send('radio', name, null, null, state, null, restart); //{type, radioName, ssidName, newSsidName, state, command, restart}
                 });
 
             this.radioServices.push(service);
@@ -281,14 +276,13 @@ class Router extends EventEmitter {
 
         // sensor
         if (this.wirelessRadioSensor.displayType > 0) {
-            const sensorType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.wirelessRadioSensor.displayType];
-            const sensorCharacteristic = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
-            const sensorName = this.wirelessRadioSensor.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
-            const sensorService = this.accessory.addService(sensorType, sensorName, radioId);
+            const serviceName = this.wirelessRadioSensor.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
+            const serviceType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.wirelessRadioSensor.displayType];
+            const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
+            const sensorService = this.accessory.addService(serviceType, serviceName, radioId);
             sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-            sensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-
-            sensorService.getCharacteristic(sensorCharacteristic)
+            sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+            sensorService.getCharacteristic(characteristicType)
                 .onGet(async () => {
                     const current = this.openWrtInfo.wirelessRadios.find(r => r.device === name && r.band === band);
                     return current ? !current.disabled : false;
@@ -309,18 +303,27 @@ class Router extends EventEmitter {
 
         // control
         if (this.wirelessSsidControl.displayType > 0) {
-            const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb][this.wirelessSsidControl.displayType];
-            const serviceName = this.wirelessSsidControl.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
-            const service = this.accessory.addService(serviceType, serviceName, ssidId);
+            const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb, Service.Fan][this.wirelessSsidControl.displayType];
+            const service = this.accessory.addService(serviceType, name, ssidId);
             service.addOptionalCharacteristic(Characteristic.ConfiguredName);
-            service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
+            service.getCharacteristic(Characteristic.ConfiguredName)
+                .onGet(async () => {
+                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    return current.name;
+                })
+                .onSet(async (value) => {
+                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    if (current.name === value) return;
+
+                    await this.openWrt.send('ssid', radio, name, value, !current.disabled, null, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
+                });
             service.getCharacteristic(Characteristic.On)
                 .onGet(async () => {
                     const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
                     return current ? !current.disabled : false;
                 })
                 .onSet(async (state) => {
-                    await this.openWrt.send('ssid', radio, name, state);
+                    await this.openWrt.send('ssid', radio, name, null, state, null, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
                 });
 
             this.ssidServices.push(service);
@@ -328,13 +331,12 @@ class Router extends EventEmitter {
 
         // sensor
         if (this.wirelessSsidSensor.displayType > 0) {
-            const sensorType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.wirelessSsidSensor.displayType];
-            const sensorCharacteristic = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessSsidSensor.displayType];
-            const sensorName = this.wirelessSsidSensor.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
-            const sensorService = this.accessory.addService(sensorType, sensorName, ssidId);
+            const serviceType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.wirelessSsidSensor.displayType];
+            const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessSsidSensor.displayType];
+            const sensorService = this.accessory.addService(serviceType, name, ssidId);
             sensorService.addOptionalCharacteristic(Characteristic.ConfiguredName);
-            sensorService.setCharacteristic(Characteristic.ConfiguredName, sensorName);
-            sensorService.getCharacteristic(sensorCharacteristic)
+            sensorService.setCharacteristic(Characteristic.ConfiguredName, name);
+            sensorService.getCharacteristic(characteristicType)
                 .onGet(async () => {
                     const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
                     return current ? !current.disabled : false;
@@ -358,7 +360,7 @@ class Router extends EventEmitter {
             .setCharacteristic(Characteristic.FirmwareRevision, this.openWrtInfo.systemInfo.release?.version);
 
         // Router
-        const routerService = new Service.WiFiSatellite(this.name, 'routerService');
+        const routerService = accessory.addService(Service.WiFiSatellite, this.name, 'routerService');
         routerService.setPrimaryService(true);
         routerService.addOptionalCharacteristic(Characteristic.ConfiguredName);
         routerService.setCharacteristic(Characteristic.ConfiguredName, this.name);
@@ -369,7 +371,6 @@ class Router extends EventEmitter {
             })
 
         this.routerService = routerService;
-        accessory.addService(routerService);
 
         // Radios
         this.radioServices = [];
@@ -401,7 +402,7 @@ class Router extends EventEmitter {
                     if (!state) return;
 
                     button.state = true;
-                    await this.openWrt.send('button', null, null, button.command);
+                    await this.openWrt.send('button', null, null, null, button.command, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
                     setTimeout(() => {
                         button.state = false;
                         buttonService.updateCharacteristic(Characteristic.On, false);

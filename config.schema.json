@@ -117,7 +117,7 @@
                           "type": "integer",
                           "description": "Accessory type for Radio control in Home app",
                           "minimum": 0,
-                          "maximum": 3,
+                          "maximum": 4,
                           "anyOf": [
                             {
                               "title": "Disabled",
@@ -141,6 +141,12 @@
                               "title": "Lightbulb",
                               "enum": [
                                 3
+                              ]
+                            },
+                            {
+                              "title": "Fan",
+                              "enum": [
+                                4
                               ]
                             }
                           ]
@@ -225,7 +231,7 @@
                           "type": "integer",
                           "description": "Accessory type for SSID control in Home app",
                           "minimum": 0,
-                          "maximum": 3,
+                          "maximum": 4,
                           "anyOf": [
                             {
                               "title": "Disabled",
@@ -250,16 +256,14 @@
                               "enum": [
                                 3
                               ]
+                            },
+                            {
+                              "title": "Fan",
+                              "enum": [
+                                4
+                              ]
                             }
                           ]
-                        },
-                        "namePrefix": {
-                          "title": "Prefix",
-                          "type": "boolean",
-                          "description": "Here enable the device name as a prefix for SSID control name",
-                          "condition": {
-                            "functionBody": "return model.devices[arrayIndices].wireless.ssid.control.displayType > 0;"
-                          }
                         }
                       }
                     },
@@ -299,14 +303,6 @@
                               ]
                             }
                           ]
-                        },
-                        "namePrefix": {
-                          "title": "Prefix",
-                          "type": "boolean",
-                          "description": "Here enable the device name as a prefix for SSID sensor name",
-                          "condition": {
-                            "functionBody": "return model.devices[arrayIndices].wireless.ssid.sensor.displayType > 0;"
-                          }
                         }
                       }
                     }
@@ -701,16 +697,14 @@
                                   "key": "devices[].wireless.ssid.control",
                                   "title": "Control",
                                   "items": [
-                                    "devices[].wireless.ssid.control.displayType",
-                                    "devices[].wireless.ssid.control.namePrefix"
+                                    "devices[].wireless.ssid.control.displayType"
                                   ]
                                 },
                                 {
                                   "key": "devices[].wireless.ssid.sensor",
                                   "title": "Sensor",
                                   "items": [
-                                    "devices[].wireless.ssid.sensor.displayType",
-                                    "devices[].wireless.ssid.sensor.namePrefix"
+                                    "devices[].wireless.ssid.sensor.displayType"
                                   ]
                                 }
                               ]
