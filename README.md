@@ -28,7 +28,7 @@
 
 ## Note
 
-* To use all of functions need to download [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/main/homebridge-acl.json) and put in to `/usr/share/rpcd/acl.d/` folder on your router.
+* To use all of functions use [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/main/homebridge-acl.json) and put in to `/usr/share/rpcd/acl.d/` folder on your router.
 * After put it restart OpenWrt or RPCD service.
 
 ## About The Plugin
