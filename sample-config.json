@@ -42,12 +42,10 @@
                         },
                         "ssid": {
                             "control": {
-                                "displayType": 2,
-                                "namePrefix": false
+                                "displayType": 2
                             },
                             "sensor": {
-                                "displayType": 3,
-                                "namePrefix": false
+                                "displayType": 3
                             }
                         }
                     },

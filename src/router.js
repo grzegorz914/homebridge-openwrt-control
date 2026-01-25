@@ -55,18 +55,16 @@ class Router extends EventEmitter {
             // RADIOS
             const currentRadios = [];
             for (const radio of openWrtInfo.wirelessRadios) {
-                const name = radio.device;
-                const band = radio.band;
-                const state = radio.disabled;
-
+                const { name, band, disabled } = radio;
                 const radioId = `radio:${name}:${band}`;
                 currentRadios.push(radioId);
 
+                const convertedBand = band === '2g' ? '2.4GHz' : band === '5g' ? '5GHz' : '';
                 let added = false;
 
                 // controls
                 if (this.wirelessRadioControl.displayType > 0) {
-                    const serviceName = this.wirelessRadioControl.namePrefix ? `${this.name} ${name} ${band}` : `${name} ${band}`;
+                    const serviceName = this.wirelessRadioControl.namePrefix ? `${this.name} ${name} ${convertedBand}` : `${name} ${convertedBand}`;
                     const existing = this.radioServices.find(s => s.subtype === radioId);
 
                     if (!existing) {
@@ -74,13 +72,13 @@ class Router extends EventEmitter {
                         added = true;
                     } else {
                         existing.updateCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(Characteristic.On, !state);
+                            .updateCharacteristic(Characteristic.On, !disabled);
                     }
                 }
 
                 // sensors
                 if (this.wirelessRadioSensor.displayType > 0) {
-                    const serviceName = this.wirelessRadioSensor.namePrefix ? `${this.name} ${name} ${band}` : `${name} ${band}`;
+                    const serviceName = this.wirelessRadioSensor.namePrefix ? `${this.name} ${name} ${convertedBand}` : `${name} ${convertedBand}`;
                     const existingSensor = this.radioSensorServices.find(s => s.subtype === radioId);
 
                     if (!existingSensor && !added) {
@@ -88,7 +86,7 @@ class Router extends EventEmitter {
                     } else if (existingSensor) {
                         const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
                         existingSensor.updateCharacteristic(Characteristic.ConfiguredName, serviceName)
-                            .updateCharacteristic(characteristicType, !state);
+                            .updateCharacteristic(characteristicType, !disabled);
                     }
                 }
             }
@@ -115,11 +113,7 @@ class Router extends EventEmitter {
             // SSIDS
             const currentSsids = [];
             for (const ssid of openWrtInfo.wirelessSsids) {
-                const radio = ssid.device;
-                const band = ssid.band;
-                const name = ssid.name;
-                const state = ssid.disabled;
-
+                const { radio, band, name, disabled } = ssid;
                 const ssidId = `ssid:${name}:${radio}:${band}`;
                 currentSsids.push(ssidId);
 
@@ -128,27 +122,24 @@ class Router extends EventEmitter {
                 // controls
                 if (this.wirelessSsidControl.displayType > 0) {
                     const existing = this.ssidServices.find(s => s.subtype === ssidId);
-
                     if (!existing) {
                         await this.addSSID(ssid);
                         added = true;
                     } else {
                         existing.updateCharacteristic(Characteristic.ConfiguredName, name)
-                            .updateCharacteristic(Characteristic.On, !state);
+                            .updateCharacteristic(Characteristic.On, !disabled);
                     }
                 }
 
                 // sensors
                 if (this.wirelessSsidSensor.displayType > 0) {
-                    const serviceName = this.wirelessSsidSensor.namePrefix ? `${this.name} ${name} ${band}` : `${name} ${band}`;
                     const existingSensor = this.ssidSensorServices.find(s => s.subtype === ssidId);
-
                     if (!existingSensor && !added) {
                         await this.addSSID(ssid);
                     } else if (existingSensor) {
                         const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessSsidSensor.displayType];
                         existingSensor.updateCharacteristic(Characteristic.ConfiguredName, name)
-                            .updateCharacteristic(characteristicType, !state);
+                            .updateCharacteristic(characteristicType, !disabled);
                     }
                 }
             }
@@ -184,8 +175,8 @@ class Router extends EventEmitter {
             }
 
             // External integrations
-            if (this.restFulConnected) this.restFul1.update('info', info);
-            if (this.mqttConnected) this.mqtt1.emit('publish', 'Info', info);
+            if (this.restFulConnected) this.restFul1.update('info', openWrtInfo);
+            if (this.mqttConnected) this.mqtt1.emit('publish', 'Info', openWrtInfo);
         });
     }
 
@@ -250,20 +241,22 @@ class Router extends EventEmitter {
 
     async addRadio(radio) {
         const accessoryName = this.name;
-        const name = radio.device;
-        const band = radio.band;
+        const { name, band } = radio;
         const radioId = `radio:${name}:${band}`;
+        const convertedBand = band === '2g' ? '2.4GHz' : band === '5g' ? '5GHz' : '';
+
+        const getCurrent = () => this.openWrtInfo.wirelessSsids.find(r => r.name === name && r.band === band);
 
         // control
         if (this.wirelessRadioControl.displayType > 0) {
-            const serviceName = this.wirelessRadioControl.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
+            const serviceName = this.wirelessRadioControl.namePrefix ? `${accessoryName} ${name} ${convertedBand}` : `${name} ${convertedBand}`;
             const serviceType = [null, Service.Switch, Service.Outlet, Service.Lightbulb, Service.Fan][this.wirelessRadioControl.displayType];
             const service = this.accessory.addService(serviceType, serviceName, radioId);
             service.addOptionalCharacteristic(Characteristic.ConfiguredName);
             service.setCharacteristic(Characteristic.ConfiguredName, serviceName);
             service.getCharacteristic(Characteristic.On)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessRadios.find(r => r.device === name && r.band === band);
+                    const current = getCurrent();
                     return current ? !current.disabled : false;
                 })
                 .onSet(async (state) => {
@@ -276,7 +269,7 @@ class Router extends EventEmitter {
 
         // sensor
         if (this.wirelessRadioSensor.displayType > 0) {
-            const serviceName = this.wirelessRadioSensor.namePrefix ? `${accessoryName} ${name} ${band}` : `${name} ${band}`;
+            const serviceName = this.wirelessRadioSensor.namePrefix ? `${accessoryName} ${name} ${convertedBand}` : `${name} ${convertedBand}`;
             const serviceType = [null, Service.MotionSensor, Service.OccupancySensor, Service.ContactSensor][this.wirelessRadioSensor.displayType];
             const characteristicType = [null, Characteristic.MotionDetected, Characteristic.OccupancyDetected, Characteristic.ContactSensorState][this.wirelessRadioSensor.displayType];
             const sensorService = this.accessory.addService(serviceType, serviceName, radioId);
@@ -284,22 +277,21 @@ class Router extends EventEmitter {
             sensorService.setCharacteristic(Characteristic.ConfiguredName, serviceName);
             sensorService.getCharacteristic(characteristicType)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessRadios.find(r => r.device === name && r.band === band);
+                    const current = getCurrent();
                     return current ? !current.disabled : false;
                 });
 
             this.radioSensorServices.push(sensorService);
         }
 
-        if (this.logDebug) this.emit('debug', `Added radio ${name} ${band}`);
+        if (this.logDebug) this.emit('debug', `Added radio ${name} ${convertedBand}`);
     }
 
     async addSSID(ssid) {
-        const accessoryName = this.name;
-        const radio = ssid.device;
-        const band = ssid.band;
-        const name = ssid.name;
+        const { radio, band, name } = ssid;
         const ssidId = `ssid:${name}:${radio}:${band}`;
+
+        const getCurrent = () => this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.radio === radio && s.band === band);
 
         // control
         if (this.wirelessSsidControl.displayType > 0) {
@@ -308,18 +300,18 @@ class Router extends EventEmitter {
             service.addOptionalCharacteristic(Characteristic.ConfiguredName);
             service.getCharacteristic(Characteristic.ConfiguredName)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    const current = getCurrent();
                     return current.name;
                 })
                 .onSet(async (value) => {
-                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    const current = getCurrent();
                     if (current.name === value) return;
 
                     await this.openWrt.send('ssid', radio, name, value, !current.disabled, null, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
                 });
             service.getCharacteristic(Characteristic.On)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    const current = getCurrent();
                     return current ? !current.disabled : false;
                 })
                 .onSet(async (state) => {
@@ -338,7 +330,7 @@ class Router extends EventEmitter {
             sensorService.setCharacteristic(Characteristic.ConfiguredName, name);
             sensorService.getCharacteristic(characteristicType)
                 .onGet(async () => {
-                    const current = this.openWrtInfo.wirelessSsids.find(s => s.name === name && s.device === radio && s.band === band);
+                    const current = getCurrent();
                     return current ? !current.disabled : false;
                 });
 

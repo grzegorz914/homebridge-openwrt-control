@@ -12,11 +12,6 @@ class OpenWrt extends EventEmitter {
         this.logError = config.log?.error;
         this.logDebug = config.log?.debug;
 
-        //external integration
-        this.restFulEnabled = config.restFul?.enable || false;
-        this.mqttEnabled = config.mqtt?.enable || false;
-
-        this.firstConnect = true;
         this.lock = false;
         this.sessionId = null;
         this.sessionExpiresAt = 0;
@@ -108,61 +103,43 @@ class OpenWrt extends EventEmitter {
                 return ((Array.isArray(iface['ipv4-address']) && iface['ipv4-address'].length > 0) || (Array.isArray(iface['ipv6-address']) && iface['ipv6-address'].length > 0));
             });
 
-            // Wireless
+            // Wireless info
             const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' });
             if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(wirelessInfo, null, 2)}`);
 
-            // Radio -> band map
-            const radioBandMap = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-device').reduce((map, [, data]) => {
-                if (data.band === '2g') map[data['.name']] = '2.4GHz';
-                else if (data.band === '5g') map[data['.name']] = '5GHz';
-                else map[data['.name']] = 'unknown';
-                return map;
-            }, {});
-
             // Radios list
             const radios = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-device').map(([key, data]) => {
-                const deviceName = data.device || data['.name'] || key;
-                const band = radioBandMap[deviceName] || 'unknown';
+                const name = data.device || data['.name'] || key;
+                const band = data.band ?? '';
                 const disabled = data.disabled === '1';
 
                 return {
-                    device: deviceName,
+                    name,
                     band,
                     disabled
                 };
             });
-
-            // Radio disabled map
-            const radioDisabledMap = radios.reduce((map, radio) => {
-                map[radio.device] = radio.disabled;
-                return map;
-            }, {});
 
             // SSIDs list
             const ssids = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-iface').map(([key, data]) => {
-                const ifaceName = data['.name'] || key;
-                const radioName = data.device || null;
-                const band = radioBandMap[radioName] || 'unknown';
-                const disabled = data.disabled === '1';
+                // radio
+                const currentRadio = radios.find(r => r.name === data.device);
+                const radio = data.device || null;
+                const band = currentRadio?.band ?? '';
+
+                // ssid
+                const name = data.ssid || null;
+                const mode = data.mode || null;
+                const hidden = data.hidden === '1' || data.hidden === true;
+                const disabled = data.disabled === '1' || currentRadio?.disabled === true;
 
                 return {
-                    ifname: ifaceName,
-                    device: radioName,
+                    radio,
                     band,
-                    name: data.ssid || null,
-                    mode: data.mode || null,
-                    hidden: data.hidden === '1' || data.hidden === true,
+                    name,
+                    mode,
+                    hidden,
                     disabled
-                };
-            });
-
-            // Apply radio disabled -> SSID disabled
-            const normalizedSsids = ssids.map(ssid => {
-                const radioDisabled = radioDisabledMap[ssid.device] === true;
-                return {
-                    ...ssid,
-                    disabled: ssid.disabled || radioDisabled
                 };
             });
 
@@ -174,8 +151,8 @@ class OpenWrt extends EventEmitter {
             openWrtInfo.networkInfo = networkInterfaces;
             openWrtInfo.wirelessInfo = wirelessInfo;
             openWrtInfo.wirelessRadios = radios;
-            openWrtInfo.wirelessSsids = normalizedSsids;
-
+            openWrtInfo.wirelessSsids = ssids;
+            
             this.emit('openWrtInfo', openWrtInfo);
 
             return openWrtInfo;
@@ -192,9 +169,8 @@ class OpenWrt extends EventEmitter {
                 await this.handleWithLock(async () => {
                     if (this.logDebug) this.emit('debug', `${restart ? 'Restart' : state ? 'Enabling' : 'Disabling'} radio ${radioName}`);
 
-                    // Restart radio
+                    // Toggle radio
                     if (!restart) {
-                        // Toggle radio
                         // Get wireless config with UCI
                         const wirelessConfig = await this.ubusCall('uci', 'get', { config: 'wireless' });
 
@@ -295,6 +271,7 @@ class OpenWrt extends EventEmitter {
                 }
                 break;
             default:
+                if (this.logWarn) this.emit('warn', `Unknown send type: ${type}`);
                 break;
         }
         return true;

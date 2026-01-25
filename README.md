@@ -24,12 +24,12 @@
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
 | [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) | [Homebridge UI Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge User Interface | Recommended |
 | [OpenWrt Control](https://www.npmjs.com/package/homebridge-openwrt-control) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-openwrt-control/wiki) | Homebridge Plug-In | Required |
-| [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/src/homebridgeacl.json) | paste in `/usr/share/rpcd/acl.d/` folder | ACL Control | Required |
+| [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/homebridge-acl.json) | `/usr/share/rpcd/acl.d/` | Access Control | Recommended |
 
 ## Note
 
-* To controll all functions need to download [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/src/homebridgeacl.json) and put in `/usr/share/rpcd/acl.d/` folder on your router.
-* Next You need restart OpenWrt or RPCD service.
+* To use all of functions need to download [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/homebridge-acl.json) and put in to `/usr/share/rpcd/acl.d/` folder on your router.
+* After put it restart OpenWrt or RPCD service.
 
 ## About The Plugin
 
@@ -45,15 +45,14 @@
     * Radio `On/Off/Restart`.
     * SSID `On/Off/Change Name`.
   * Sensor:
-    * Radio `On/Off`.
-    * SSID `On/Off`.
-* Siri control of all functions.
-* Home automations and shortcuts can be used for all available functions.
+    * Radio `Enabled/Disabled`.
+    * SSID `Enabled/Disabled`.
+* Siri, automations and schortcuts control all of available functions.
 * External integrations include: [REST](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#mqtt-integration).
 
 ## Configuration
 
-* Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge if plugin crashes.
+* Run this plugin as a [Child Bridge](https://github.com/homebridge/homebridge/wiki/Child-Bridges) (Highly Recommended), this prevent crash Homebridge.
 * Install and use [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x/wiki) to configure this plugin.
 * The `sample-config.json` can be edited and used as an alternative.
 
@@ -117,7 +116,7 @@ Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |
 | --- | --- | --- | --- | --- |
-| GET | `http//ip:port` | `info` | `{ state: false, info: '', linkUp:false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| GET | `http//ip:port` | `info` | `{ state: false, info: 'Connect Success', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | URL | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
@@ -131,7 +130,7 @@ Subscribe using JSON `{ "SystemReboot": true }`
 
 | Method | Topic | Message | Type |
 | --- | --- | --- | --- |
-| Publish | `Info` | `{ state: false, info: '', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
+| Publish | `Info` | `{ state: false, info: 'Connect Success', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [] }` | JSON |
 
 | Method | Topic | Key | Value | Type | Description |
 | --- | --- | --- | --- | --- | --- |
