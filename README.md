@@ -24,11 +24,11 @@
 | [Homebridge](https://github.com/homebridge/homebridge) | [Homebridge Wiki](https://github.com/homebridge/homebridge/wiki) | HomeKit Bridge | Required |
 | [Homebridge UI](https://github.com/homebridge/homebridge-config-ui-x) | [Homebridge UI Wiki](https://github.com/homebridge/homebridge-config-ui-x/wiki) | Homebridge User Interface | Recommended |
 | [OpenWrt Control](https://www.npmjs.com/package/homebridge-openwrt-control) | [Plug-In Wiki](https://github.com/grzegorz914/homebridge-openwrt-control/wiki) | Homebridge Plug-In | Required |
-| [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/homebridge-acl.json) | `/usr/share/rpcd/acl.d/` | Access Control | Recommended |
+| [OpenWrt ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/main/homebridge-acl.json) | `/usr/share/rpcd/acl.d/` | Access Control | Recommended |
 
 ## Note
 
-* To use all of functions need to download [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/94bc6af8693999a48e7a75e5ed64428c52480312/homebridge-acl.json) and put in to `/usr/share/rpcd/acl.d/` folder on your router.
+* To use all of functions need to download [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/main/homebridge-acl.json) and put in to `/usr/share/rpcd/acl.d/` folder on your router.
 * After put it restart OpenWrt or RPCD service.
 
 ## About The Plugin
