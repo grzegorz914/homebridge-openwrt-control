@@ -17,9 +17,9 @@ Homebridge plugin for OpenWrt devices.
   
 </span>
 
-<span align="center">
+# Supports My Work 
 
-# Support My Work 
+<span align="center">
 
 <a href="https://buycoffee.to/grzegorz914" target="_blank"><img src="https://buycoffee.to/static/img/share/share-button-primary.png" style="width: 234px; height: 61px" alt="Postaw mi kawę na buycoffee.to"></a><a href="https://github.com/grzegorz914/homebridge-openwrt-control"><img src="https://raw.githubusercontent.com/grzegorz914/homebridge-openwrt-control/main/graphics/QR_buycoffee.png" width="61"></a>
 
