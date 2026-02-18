@@ -13,7 +13,9 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/grzegorz914/homebridge-openwrt-control.svg)](https://github.com/grzegorz914/homebridge-openwrt-control/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/grzegorz914/homebridge-openwrt-control.svg)](https://github.com/grzegorz914/homebridge-openwrt-control/issues)
 
- Homebridge plugin for OpenWrt devices.
+Homebridge plugin for OpenWrt devices.
+
+<a href="https://buycoffee.to/grzegorz914" target="_blank"><img src="https://buycoffee.to/static/img/share/share-button-primary.png" style="width: 234px; height: 61px" alt="Postaw mi kawę na buycoffee.to"></a>
   
 </span>
 

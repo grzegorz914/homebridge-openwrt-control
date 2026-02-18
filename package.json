@@ -1,7 +1,7 @@
 {
     "displayName": "OpenWrt Control",
     "name": "homebridge-openwrt-control",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Homebridge plugin to control OpenWrt flashed devices.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -34,20 +34,23 @@
         "node": "^20 || ^22 || ^24 || ^25"
     },
     "dependencies": {
-        "mqtt": "^5.14.1",
-        "axios": "^1.13.2",
+        "mqtt": "^5.15.0",
+        "axios": "^1.13.5",
         "express": "^5.2.1"
     },
     "keywords": [
         "homebridge",
         "homebridge-plugin",
-
         "homekit",
         "openwrt",
         "accesspoint",
         "wireless",
         "router"
     ],
+    "funding": {
+        "type": "Buy Coffee To",
+        "url": "https://buycoffee.to/grzegorz914"
+    },
     "contributors": [],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"

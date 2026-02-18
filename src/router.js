@@ -176,7 +176,7 @@ class Router extends EventEmitter {
 
             // External integrations
             if (this.restFulConnected) this.restFul1.update('info', openWrtInfo);
-            if (this.mqttConnected) this.mqtt1.emit('publish', 'Info', openWrtInfo);
+            if (this.mqttConnected) await this.mqtt1.publish('Info', openWrtInfo);
         });
     }
 

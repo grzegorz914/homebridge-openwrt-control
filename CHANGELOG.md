@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.3.2] - (18.02.2026)
+
+## Changes
+
+- MQTT refactor
+- add funding
+- bump deependencies
+- readme updated
+- cleanup
+
 ## [0.3.1] - (25.01.2026)
 
 ## Changes
