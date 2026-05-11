@@ -72,7 +72,7 @@ class RestFul extends EventEmitter {
     }
 
     update(path, data) {
-        if (this.restFulData.hasOwnProperty(path)) {
+        if (Object.hasOwn(this.restFulData, path)) {
             this.restFulData[path] = data;
         } else {
             if (this.logWarn) this.emit('warn', `Unknown RESTFul update path: ${path}, data: ${JSON.stringify(data)}`);

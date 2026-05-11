@@ -1,22 +1,19 @@
 import EventEmitter from 'events';
 import axios from 'axios';
-import Functions from './functions.js';
 import ImpulseGenerator from './impulsegenerator.js';
-import { AclPath, AclData } from './constants.js';
 
 class OpenWrt extends EventEmitter {
     constructor(config) {
         super();
         this.user = config.auth?.user || 'root';
         this.passwd = config.auth?.passwd;
+        this.logWarn = config.log?.warn;
         this.logError = config.log?.error;
         this.logDebug = config.log?.debug;
 
         this.lock = false;
         this.sessionId = null;
         this.sessionExpiresAt = 0;
-
-        this.functions = new Functions();
 
         const baseUrl = `http://${config.host}/ubus`;
         this.axiosInstance = axios.create({

@@ -27,6 +27,7 @@ class Router extends EventEmitter {
         this.buttons = (config.buttons ?? []).filter(b => (b.displayType ?? 0) > 0);
         this.logDeviceInfo = config.log?.deviceInfo || false;
         this.logInfo = config.log?.info || false;
+        this.logWarn = config.log?.warn || false;
         this.logDebug = config.log?.debug || false;
 
         // external integrations
@@ -184,6 +185,7 @@ class Router extends EventEmitter {
         if (this.restFul.enable) {
             this.restFul1 = new RestFul({
                 port: this.restFul.port || 3000,
+                logWarn: this.logWarn,
                 logDebug: this.logDebug
             })
                 .on('connected', msg => {
@@ -206,6 +208,7 @@ class Router extends EventEmitter {
                 prefix: this.mqtt.prefix ? `${this.openWrtInfo.systemInfo.model}/${this.mqtt.prefix}/${this.name}` : `${this.openWrtInfo.systemInfo.model}/${this.name}`,
                 user: this.mqtt.auth?.user,
                 passwd: this.mqtt.auth?.passwd,
+                logWarn: this.logWarn,
                 logDebug: this.logDebug
             })
                 .on('connected', msg => {
@@ -228,11 +231,11 @@ class Router extends EventEmitter {
 
         switch (key) {
             case 'SystemReboot':
-                return this.openWrt.send('externalIntegration', null, null, null, 0);
+                return this.openWrt.send('externalIntegration', null, null, null, null, 0);
             case 'NetworkReload':
-                return this.openWrt.send('externalIntegration', null, null, null, 1);
+                return this.openWrt.send('externalIntegration', null, null, null, null, 1);
             case 'WirelessReload':
-                return this.openWrt.send('externalIntegration', null, null, null, 2);
+                return this.openWrt.send('externalIntegration', null, null, null, null, 2);
             default:
                 this.emit('warn', `${integration} unknown key ${key}`);
                 return false;
@@ -245,7 +248,7 @@ class Router extends EventEmitter {
         const radioId = `radio:${name}:${band}`;
         const convertedBand = band === '2g' ? '2.4GHz' : band === '5g' ? '5GHz' : '';
 
-        const getCurrent = () => this.openWrtInfo.wirelessSsids.find(r => r.name === name && r.band === band);
+        const getCurrent = () => this.openWrtInfo.wirelessRadios.find(r => r.name === name && r.band === band);
 
         // control
         if (this.wirelessRadioControl.displayType > 0) {
@@ -301,11 +304,11 @@ class Router extends EventEmitter {
             service.getCharacteristic(Characteristic.ConfiguredName)
                 .onGet(async () => {
                     const current = getCurrent();
-                    return current.name;
+                    return current?.name ?? name;
                 })
                 .onSet(async (value) => {
                     const current = getCurrent();
-                    if (current.name === value) return;
+                    if (!current || current.name === value) return;
 
                     await this.openWrt.send('ssid', radio, name, value, !current.disabled, null, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
                 });
@@ -394,7 +397,7 @@ class Router extends EventEmitter {
                     if (!state) return;
 
                     button.state = true;
-                    await this.openWrt.send('button', null, null, null, button.command, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
+                    await this.openWrt.send('button', null, null, null, null, button.command, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
                     setTimeout(() => {
                         button.state = false;
                         buttonService.updateCharacteristic(Characteristic.On, false);

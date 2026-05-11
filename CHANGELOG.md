@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.3.6] - (11.05.2026)
+
+## Changes
+
+- fix button commands not executing (wrong argument position in send call)
+- fix external integration commands not executing (SystemReboot, NetworkReload, WirelessReload)
+- fix radio status getCurrent searching wrong collection (wirelessSsids instead of wirelessRadios)
+- fix SSID ConfiguredName onGet/onSet crash when SSID not found (missing null guard)
+- fix logWarn never assigned in OpenWrt and Router classes
+- fix logWarn not forwarded to RESTFul and MQTT integrations
+- remove unused imports (AclPath, AclData, Functions) and dead code
+- cleanup
+
 ## [0.3.2] - (18.02.2026)
 
 ## Changes
