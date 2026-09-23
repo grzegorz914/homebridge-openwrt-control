@@ -207,6 +207,7 @@ class Router extends EventEmitter {
                 port: this.mqtt.port || 1883,
                 clientId: `${this.name}_${Math.random().toString(16).slice(3)}`,
                 prefix: this.mqtt.prefix ? `${this.openWrtInfo.systemInfo.model}/${this.mqtt.prefix}/${this.name}` : `${this.openWrtInfo.systemInfo.model}/${this.name}`,
+                protocolVersion: this.mqtt.protocolVersion,
                 user: this.mqtt.auth?.user,
                 passwd: this.mqtt.auth?.passwd,
                 logWarn: this.logWarn,
