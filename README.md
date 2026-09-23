@@ -99,6 +99,7 @@
 | `restFul{}` | RESTFul object. |
 | `restFul.enable` | If enabled, RESTful server will start automatically and respond to any path request. |
 | `restFul.port` | Here set the listening `Port` for RESTful server. |
+| `restFul.token` | Here optional set the access token. When set, every request must send the header `Authorization: Bearer <token>`, otherwise the server responds `401`. |
 | `mqtt{}` | MQTT object. |
 | `mqtt.enable` | If enabled, MQTT Broker will start automatically and publish all available data. |
 | `mqtt.host` | Here set the `IP Address` or `Hostname` for MQTT Broker. |
@@ -113,6 +114,7 @@
 ### REST Integration
 
 REST POST calls must include a content-type header of `application/json`.
+If `Token` is set, every request (GET and POST) must send the header `Authorization: Bearer <token>`.
 Path `status` response all available paths.
 
 | Method | URL | Path | Response | Type |

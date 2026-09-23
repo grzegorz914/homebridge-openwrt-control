@@ -185,6 +185,7 @@ class Router extends EventEmitter {
         if (this.restFul.enable) {
             this.restFul1 = new RestFul({
                 port: this.restFul.port || 3000,
+                token: this.restFul.token,
                 logWarn: this.logWarn,
                 logDebug: this.logDebug
             })

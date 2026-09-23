@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.3.8] - (23.09.2026)
+
+### Added
+
+- optional RESTful access `Token`. When set, every request (GET and POST) must send the header `Authorization: Bearer <token>`, otherwise the server responds `401`. Leaving it empty keeps the previous behaviour, so existing configs keep working
+- readme update
+
 ## [0.3.6] - (11.05.2026)
 
 ## Changes
