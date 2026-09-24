@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.3.10] - (24.09.2026)
+
+### Changes
+
+- added: RESTFul request rate limit, 600 requests per minute per client and at most 1000 clients per minute, answered with `429` and `Retry-After`, one log warning per client and minute.
+
 ## [0.3.9] - (23.09.2026)
 
 ### Changes
