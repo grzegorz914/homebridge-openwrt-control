@@ -164,25 +164,30 @@ class HaDiscovery {
         button('network_reload', { NetworkReload: true }, { name: 'Reload network', icon: 'mdi:lan-pending', entity_category: 'config' });
         button('wireless_reload', { WirelessReload: true }, { name: 'Reload Wi-Fi', icon: 'mdi:wifi-refresh', entity_category: 'config' });
 
-        // Radios
+        // Radios, named by band and radio number (5 GHz Radio 0), tri-band routers have two radios of one band
         for (const radio of info.wirelessRadios ?? []) {
             const id = radio.name;
             const key = this.key(id);
-            const label = BandLabel[radio.band] ?? id;
+            const label = this.radioLabel(radio);
             const radioInfo = ext.radios?.[id] ?? {};
-            toggle(`radio_${key}`, id, 'Radio', { name: `Wi-Fi ${label}`, icon: 'mdi:wifi', value_template: `{{ 'ON' if value_json.radios['${id}'].on else 'OFF' }}` });
-            button(`radio_${key}_restart`, { RadioRestart: { id } }, { name: `Restart Wi-Fi ${label}`, device_class: 'restart', entity_category: 'config' });
+            toggle(`radio_${key}`, id, 'Radio', { name: label, icon: 'mdi:wifi', value_template: `{{ 'ON' if value_json.radios['${id}'].on else 'OFF' }}` });
+            button(`radio_${key}_restart`, { RadioRestart: { id } }, { name: `Restart ${label}`, device_class: 'restart', entity_category: 'config' });
             if (this.has(`radio_${key}_channel`, radioInfo.channel != null)) sensor(`radio_${key}_channel`, { name: `Channel ${label}`, icon: 'mdi:access-point', entity_category: 'diagnostic', value_template: state(`.radios['${id}'].channel`) });
             if (this.has(`radio_${key}_txpower`, radioInfo.txpower != null)) sensor(`radio_${key}_txpower`, { name: `TX power ${label}`, icon: 'mdi:signal', unit_of_measurement: 'dBm', state_class: 'measurement', entity_category: 'diagnostic', value_template: state(`.radios['${id}'].txpower`) });
         }
 
         // SSIDs, the id is the UCI section so renaming the network keeps the entity
+        // SSIDs named by network and band (Dom 5 GHz), the radio is added when the same network is on two radios of one band
         const uci = info.wirelessInfo?.values ?? {};
+        const ssidBand = (ssid) => `${ssid.name} ${BandLabel[ssid.band] ?? ssid.radio ?? ''}`.trim();
+        const ssidLabels = (info.wirelessSsids ?? []).map(ssidBand);
         for (const ssid of info.wirelessSsids ?? []) {
             if (!ssid.section || !ssid.name) continue;
             const id = ssid.section;
             const key = this.key(id);
-            const label = `${ssid.name} ${BandLabel[ssid.band] ?? ssid.radio ?? ''}`.trim();
+            const radio = (info.wirelessRadios ?? []).find(r => r.name === ssid.radio);
+            const duplicate = ssidLabels.filter(label => label === ssidBand(ssid)).length > 1;
+            const label = duplicate && radio ? `${ssid.name} ${this.radioLabel(radio)}` : ssidBand(ssid);
             toggle(`ssid_${key}`, id, 'Ssid', { name: label, icon: 'mdi:wifi-lock', value_template: `{{ 'ON' if value_json.ssids['${id}'].on else 'OFF' }}` });
             if (clientsAvailable && (ssid.mode ?? 'ap') === 'ap') sensor(`ssid_${key}_clients`, { name: `${label} clients`, icon: 'mdi:account-multiple', state_class: 'measurement', value_template: state(`.ssids['${id}'].clients`) });
 
@@ -246,6 +251,14 @@ class HaDiscovery {
         qr.addData(text, 'Byte');
         qr.make();
         return qr.createSvgTag({ cellSize: 8, margin: 4, scalable: true });
+    }
+
+    // 5 GHz Radio 0, the number from the radio name (radio0), other names as they are
+    radioLabel(radio) {
+        const number = String(radio.name).match(/^radio(\d+)$/)?.[1];
+        const band = BandLabel[radio.band];
+        const name = number !== undefined ? `Radio ${number}` : radio.name;
+        return band ? `${band} ${name}` : name;
     }
 
     // Object id part of a radio or UCI section name

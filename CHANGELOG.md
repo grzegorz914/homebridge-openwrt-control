@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.1] - (25.09.2026)
+
+### Changes
+
+- fix: Home Assistant radio entities had the same name on routers with two radios of one band (two `Wi-Fi 5 GHz`), radios are now named by band and radio number (`5 GHz Radio 0`, `Restart 5 GHz Radio 0`, `Channel 5 GHz Radio 0`), SSIDs get the radio added when the same network is on two radios of one band (`Dom 5 GHz Radio 2`). Entity ids do not change
+- readme update
+
 ## [0.4.0] - (25.09.2026)
 
 ### Changes

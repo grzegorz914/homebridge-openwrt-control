@@ -154,12 +154,12 @@ With `mqtt.haDiscovery` the router appears in Home Assistant as one device with 
 | Entity | Type | Description |
 | --- | --- | --- |
 | `WAN` | binary_sensor (connectivity) | WAN interface up, `Internet` on routers without a `wan` interface |
-| `Wi-Fi 2.4 GHz`, `Wi-Fi 5 GHz`... | switch | Radio on/off |
-| `<SSID> <band>` | switch | SSID on/off |
-| `Restart Wi-Fi <band>` | button (restart) | Radio restart |
+| `2.4 GHz Radio 0`, `5 GHz Radio 1`... | switch | Radio on/off, named by band and radio number |
+| `<SSID> <band>` | switch | SSID on/off, the radio is added (`Dom 5 GHz Radio 2`) when the same network is on two radios of one band |
+| `Restart <band> Radio <n>` | button (restart) | Radio restart |
 | `Reboot`, `Reload network`, `Reload Wi-Fi` | button | System reboot, network and wireless reload |
 | `Wi-Fi clients`, `<SSID> <band> clients` | sensor | Connected clients, total and per SSID |
-| `Channel <band>`, `TX power <band>` | sensor (diagnostic) | Current radio channel and TX power in dBm |
+| `Channel <band> Radio <n>`, `TX power <band> Radio <n>` | sensor (diagnostic) | Current radio channel and TX power in dBm |
 | `WAN IP`, `Firmware`, `Last boot`, `Load`, `Memory usage` | sensor (diagnostic) | System information |
 | `<SSID> <band> QR code` | image | QR code to join the network, only with `mqtt.haWifiQr` |
 
