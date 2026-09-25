@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.0] - (25.09.2026)
+
+### Changes
+
+- added: Home Assistant MQTT discovery (`HA Discovery` option in the MQTT section). The router appears as one device with native entities: switches for radios and SSIDs, WAN connectivity sensor, radio restart, reboot, network and Wi-Fi reload buttons, clients per SSID and total, channel and TX power per radio, WAN IP, firmware, last boot, load and memory usage
+- added: optional Wi-Fi QR code image entity per access point SSID (`HA Wi-Fi QR Code` option), contains the Wi-Fi password
+- added: MQTT and RESTful keys `Radio`, `RadioRestart` and `Ssid` with `{ "id": ..., "state": ... }`, the SSID is addressed by its UCI section
+- added: MQTT availability topic (`<prefix>/Availability`, retained `online` / `offline` last will) when HA Discovery is enabled
+- added: `iwinfo` read access in the ACL file, needed for clients, channel and TX power
+- fix: a radio or SSID command sent during a poll was dropped, commands now wait for the running poll
+- updated dependencies
+- readme update
+
 ## [0.3.10] - (24.09.2026)
 
 ### Changes

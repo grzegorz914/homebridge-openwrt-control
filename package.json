@@ -1,7 +1,7 @@
 {
     "displayName": "OpenWrt Control",
     "name": "homebridge-openwrt-control",
-    "version": "0.3.10",
+    "version": "0.4.0",
     "description": "Homebridge plugin to control OpenWrt flashed devices.",
     "license": "MIT",
     "author": "grzegorz914",
@@ -34,9 +34,10 @@
         "node": "^20 || ^22 || ^24 || ^25 || ^26"
     },
     "dependencies": {
-        "mqtt": "^5.15.2",
         "axios": "^1.20.0",
-        "express": "^5.2.1"
+        "express": "^5.2.1",
+        "mqtt": "^5.16.0",
+        "qrcode-generator": "^2.0.4"
     },
     "keywords": [
         "homebridge",

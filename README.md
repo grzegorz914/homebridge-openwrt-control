@@ -49,7 +49,7 @@
     * Radio `Enabled/Disabled`.
     * SSID `Enabled/Disabled`.
 * Siri, automations and schortcuts control all of available functions.
-* External integrations include: [REST](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#mqtt-integration).
+* External integrations include: [REST](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#restful-integration) and [MQTT](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#mqtt-integration), with [Home Assistant discovery](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#home-assistant-discovery).
 
 ## Configuration
 
@@ -107,6 +107,8 @@
 | `mqtt.clientId` | Here optional set the `Client Id` of MQTT Broker. |
 | `mqtt.prefix` | Here set the `Prefix` for `Topic` or leave empty. |
 | `mqtt.protocolVersion` | Here select the MQTT protocol version, `5.0` (default) or `3.1.1` for brokers that only support 3.1.1 (e.g. ioBroker MQTT adapter). |
+| `mqtt.haDiscovery` | If enabled, the router is published to Home Assistant with MQTT discovery, see [Home Assistant Discovery](https://github.com/grzegorz914/homebridge-openwrt-control?tab=readme-ov-file#home-assistant-discovery). |
+| `mqtt.haWifiQr` | If enabled, a QR code to join every access point SSID is published as an image entity. The QR code contains the Wi-Fi password and is sent to the MQTT broker. |
 | `mqtt.auth{}` | MQTT authorization object. |
 | `mqtt.auth.enable` | Here enable authorization for MQTT Broker. |
 | `mqtt.auth.user` | Here set the MQTT Broker `Username`. |
@@ -141,3 +143,27 @@ Subscribe using JSON `{ "SystemReboot": true }`
 | Subscribe | `Set` | `SystemReboot` | `true` | boolean | Reboot device |
 |           | `Set` | `NetworkReload` | `true` | boolean | Network reload |
 |           | `Set` | `WirelessReload` | `true` | boolean | Wireless Reload |
+|           | `Set` | `Radio` | `{ "id": "radio0", "state": true }` | object | Radio on/off, `id` is the radio name |
+|           | `Set` | `RadioRestart` | `{ "id": "radio0" }` | object | Radio restart |
+|           | `Set` | `Ssid` | `{ "id": "wifinet2", "state": true }` | object | SSID on/off, `id` is the UCI section of the wifi-iface |
+
+### Home Assistant Discovery
+
+With `mqtt.haDiscovery` the router appears in Home Assistant as one device with native entities, no custom integration needed. Main entities:
+
+| Entity | Type | Description |
+| --- | --- | --- |
+| `WAN` | binary_sensor (connectivity) | WAN interface up, `Internet` on routers without a `wan` interface |
+| `Wi-Fi 2.4 GHz`, `Wi-Fi 5 GHz`... | switch | Radio on/off |
+| `<SSID> <band>` | switch | SSID on/off |
+| `Restart Wi-Fi <band>` | button (restart) | Radio restart |
+| `Reboot`, `Reload network`, `Reload Wi-Fi` | button | System reboot, network and wireless reload |
+| `Wi-Fi clients`, `<SSID> <band> clients` | sensor | Connected clients, total and per SSID |
+| `Channel <band>`, `TX power <band>` | sensor (diagnostic) | Current radio channel and TX power in dBm |
+| `WAN IP`, `Firmware`, `Last boot`, `Load`, `Memory usage` | sensor (diagnostic) | System information |
+| `<SSID> <band> QR code` | image | QR code to join the network, only with `mqtt.haWifiQr` |
+
+* Clients, channel and TX power need `iwinfo` on the router and the updated [ACL File](https://github.com/grzegorz914/homebridge-openwrt-control/blob/main/homebridge-acl.json), system information needs `system info`. Without them these entities are not created, the rest works.
+* Switching an SSID or a radio restarts the radio, all networks of that radio disconnect for a few seconds. Do not switch off the network Home Assistant or the MQTT broker is connected through.
+* SSID entities are identified by the UCI section of the wifi-iface, renaming the network keeps the entity. Entities of a removed SSID are removed from Home Assistant.
+* Additional retained topics: `homeassistant/<component>/openwrt_<host>_<entity>/config` (discovery), `HA State` (JSON state of all entities), `Availability` (`online` / `offline` last will), `HA QR <section>` (SVG image).

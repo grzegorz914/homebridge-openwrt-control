@@ -1,6 +1,8 @@
 import EventEmitter from 'events';
+import { join } from 'path';
 import RestFul from './restful.js';
 import Mqtt from './mqtt.js';
+import HaDiscovery from './hadiscovery.js';
 
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
@@ -8,6 +10,7 @@ class Router extends EventEmitter {
     constructor(api, config, openWrt, openWrtInfo) {
         super();
 
+        this.storagePath = join(api.user.storagePath(), 'openWrt');
         Accessory = api.platformAccessory;
         Characteristic = api.hap.Characteristic;
         Service = api.hap.Service;
@@ -178,6 +181,7 @@ class Router extends EventEmitter {
             // External integrations
             if (this.restFulConnected) this.restFul1.update('info', openWrtInfo);
             if (this.mqttConnected) await this.mqtt1.publish('Info', openWrtInfo);
+            await this.haSync();
         });
     }
 
@@ -210,12 +214,14 @@ class Router extends EventEmitter {
                 protocolVersion: this.mqtt.protocolVersion,
                 user: this.mqtt.auth?.user,
                 passwd: this.mqtt.auth?.passwd,
+                haDiscovery: this.mqtt.haDiscovery,
                 logWarn: this.logWarn,
                 logDebug: this.logDebug
             })
                 .on('connected', msg => {
                     this.mqttConnected = true;
                     this.emit('success', msg);
+                    this.haSync();
                 })
                 .on('set', async (key, value) => {
                     await this.setOverExternalIntegration('MQTT', key, value);
@@ -228,10 +234,66 @@ class Router extends EventEmitter {
         return true;
     }
 
+    // Home Assistant discovery, published on connect and refreshed with every poll
+    async haSync() {
+        if (!this.mqttConnected || !this.mqtt.haDiscovery) return;
+
+        try {
+            this.ha ??= new HaDiscovery(this.mqtt1, {
+                host: this.host,
+                name: this.name,
+                manufacturer: this.openWrtInfo.systemInfo.release?.distribution,
+                model: this.openWrtInfo.systemInfo.model,
+                swVersion: this.openWrtInfo.systemInfo.release?.version,
+                wifiQr: this.mqtt.haWifiQr,
+                topicsFile: join(this.storagePath, `${this.host.replace(/[^a-zA-Z0-9_-]/g, '_')}_haDiscovery.json`)
+            });
+
+            // Polls overlap with a slow broker, only one sync at a time
+            if (this.haSyncRunning) return;
+            this.haSyncRunning = true;
+            await this.ha.sync(this.openWrtInfo);
+        } catch (error) {
+            if (this.logWarn) this.emit('warn', `HA Discovery error: ${error.message ?? error}`);
+        } finally {
+            this.haSyncRunning = false;
+        }
+    }
+
+    // Radio or SSID command from Home Assistant: {"id": "<radio or UCI section>", "state": true}
+    async setWireless(integration, type, value) {
+        const id = value?.id;
+        switch (type) {
+            case 'Radio':
+            case 'RadioRestart': {
+                const radio = this.openWrtInfo.wirelessRadios.find(r => r.name === id);
+                if (!radio) break;
+                const restart = type === 'RadioRestart';
+                await this.openWrt.send('radio', radio.name, null, null, value.state === true, null, restart); //{type, radioName, ssidName, newSsidName, state, command, restart}
+                await this.openWrt.refresh();
+                return true;
+            }
+            case 'Ssid': {
+                const ssid = this.openWrtInfo.wirelessSsids.find(s => s.section === id);
+                if (!ssid) break;
+                await this.openWrt.send('ssid', ssid.radio, ssid.name, null, value.state === true, null, false); //{type, radioName, ssidName, newSsidName, state, command, restart}
+                await this.openWrt.refresh();
+                return true;
+            }
+        }
+
+        this.emit('warn', `${integration} ${type} ${id} not found`);
+        return false;
+    }
+
     async setOverExternalIntegration(integration, key, value) {
         if (!value) return false;
 
         switch (key) {
+            case 'Radio':
+            case 'RadioRestart':
+            case 'Ssid':
+                return this.setWireless(integration, key, value);
             case 'SystemReboot':
                 return this.openWrt.send('externalIntegration', null, null, null, null, 0);
             case 'NetworkReload':

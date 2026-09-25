@@ -13,6 +13,11 @@ class OpenWrt extends EventEmitter {
 
         this.lock = false;
         this.sessionId = null;
+
+        // Home Assistant discovery needs more data (system, radio channel and power, clients), read at most every 30 s
+        this.haDiscovery = config.mqtt?.enable === true && config.mqtt?.haDiscovery === true;
+        this.extendedInfo = null;
+        this.extendedInfoAt = 0;
         this.sessionExpiresAt = 0;
 
         const baseUrl = `http://${config.host}/ubus`;
@@ -44,6 +49,28 @@ class OpenWrt extends EventEmitter {
         } finally {
             this.lock = false;
         }
+    }
+
+    // Commands wait for a running poll instead of being dropped, errors are reported like the poll errors
+    async runExclusive(fn) {
+        while (this.lock) await new Promise(resolve => setTimeout(resolve, 100));
+        this.lock = true;
+
+        try {
+            await fn();
+        } catch (error) {
+            this.emit('error', `Send error: ${error.message}`);
+        } finally {
+            this.lock = false;
+        }
+    }
+
+    // Read the state now, used after a command so Home Assistant does not wait for the next poll
+    async refresh() {
+        await this.handleWithLock(async () => {
+            this.extendedInfoAt = 0;
+            await this.connect();
+        });
     }
 
     async login() {
@@ -85,7 +112,7 @@ class OpenWrt extends EventEmitter {
 
     async connect() {
         try {
-            const openWrtInfo = { state: false, info: '', linkUp: false, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [] };
+            const openWrtInfo = { state: false, info: '', linkUp: false, wan: null, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [], extendedInfo: null };
 
             // System info
             const systemInfo = await this.ubusCall('system', 'board');
@@ -100,6 +127,10 @@ class OpenWrt extends EventEmitter {
                 return ((Array.isArray(iface['ipv4-address']) && iface['ipv4-address'].length > 0) || (Array.isArray(iface['ipv6-address']) && iface['ipv6-address'].length > 0));
             });
 
+            // WAN interface, routers without an interface named wan (access points) have none
+            const wanIface = interfaces.find(iface => iface?.interface === 'wan');
+            const wan = wanIface ? { up: wanIface.up === true, ipv4: wanIface['ipv4-address']?.[0]?.address ?? null } : null;
+
             // Wireless info
             const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' });
             if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(wirelessInfo, null, 2)}`);
@@ -112,6 +143,7 @@ class OpenWrt extends EventEmitter {
 
                 return {
                     name,
+                    section: data['.name'] || key,
                     band,
                     disabled
                 };
@@ -132,6 +164,7 @@ class OpenWrt extends EventEmitter {
 
                 return {
                     radio,
+                    section: data['.name'] || key,
                     band,
                     name,
                     mode,
@@ -144,11 +177,13 @@ class OpenWrt extends EventEmitter {
             openWrtInfo.state = true;
             openWrtInfo.info = 'Connect Success';
             openWrtInfo.linkUp = linkUp;
+            openWrtInfo.wan = wan;
             openWrtInfo.systemInfo = systemInfo;
             openWrtInfo.networkInfo = networkInterfaces;
             openWrtInfo.wirelessInfo = wirelessInfo;
             openWrtInfo.wirelessRadios = radios;
             openWrtInfo.wirelessSsids = ssids;
+            if (this.haDiscovery) openWrtInfo.extendedInfo = await this.getExtendedInfo();
             
             this.emit('openWrtInfo', openWrtInfo);
 
@@ -158,12 +193,65 @@ class OpenWrt extends EventEmitter {
         }
     }
 
+    // System info, radio channel and power, clients per SSID. Every call is optional, a router without iwinfo or
+    // without the ACL for it still reports the rest. Cached for 30 s, the calls per interface are not needed every poll
+    async getExtendedInfo() {
+        const now = Date.now();
+        if (this.extendedInfo && now - this.extendedInfoAt < 30_000) return this.extendedInfo;
+
+        const optional = async (service, method, params) => {
+            try {
+                return await this.ubusCall(service, method, params);
+            } catch (error) {
+                if (this.logDebug) this.emit('debug', `Optional ubus call ${service} ${method} failed: ${error.message}`);
+                return null;
+            }
+        };
+
+        const info = { system: null, radios: {}, ifaces: {} };
+
+        const system = await optional('system', 'info');
+        if (system) {
+            const memory = system.memory ?? {};
+            const available = memory.available ?? ((memory.free ?? 0) + (memory.buffered ?? 0) + (memory.cached ?? 0));
+            info.system = {
+                uptime: system.uptime ?? null,
+                load: Array.isArray(system.load) ? Math.round(system.load[0] / 65536 * 100) / 100 : null,
+                memory: memory.total ? Math.round((1 - available / memory.total) * 100) : null
+            };
+        }
+
+        // Interface names of the SSID sections, from the runtime wireless status
+        const status = await optional('network.wireless', 'status');
+        for (const [radio, radioStatus] of Object.entries(status ?? {})) {
+            const radioInfo = { up: radioStatus?.up === true, channel: null, txpower: null };
+            for (const iface of radioStatus?.interfaces ?? []) {
+                if (!iface?.section || !iface?.ifname) continue;
+                const clients = await optional('iwinfo', 'assoclist', { device: iface.ifname });
+                info.ifaces[iface.section] = { ifname: iface.ifname, clients: Array.isArray(clients?.results) ? clients.results.length : null };
+
+                // Channel and power of the radio from its first interface
+                if (radioInfo.channel === null) {
+                    const ifaceInfo = await optional('iwinfo', 'info', { device: iface.ifname });
+                    radioInfo.channel = ifaceInfo?.channel ?? null;
+                    radioInfo.txpower = ifaceInfo?.txpower ?? null;
+                }
+            }
+            info.radios[radio] = radioInfo;
+        }
+
+        if (this.logDebug) this.emit('debug', `Extended info: ${JSON.stringify(info)}`);
+        this.extendedInfo = info;
+        this.extendedInfoAt = now;
+        return info;
+    }
+
     async send(type, radioName, ssidName, newSsidName = null, state, command, restart = false) {
         switch (type) {
             case 'router':
                 break;
             case 'radio':
-                await this.handleWithLock(async () => {
+                await this.runExclusive(async () => {
                     if (this.logDebug) this.emit('debug', `${restart ? 'Restart' : state ? 'Enabling' : 'Disabling'} radio ${radioName}`);
 
                     // Toggle radio
@@ -202,7 +290,7 @@ class OpenWrt extends EventEmitter {
                 });
                 break;
             case 'ssid':
-                await this.handleWithLock(async () => {
+                await this.runExclusive(async () => {
                     if (this.logDebug) this.emit('debug', `${state ? 'Enabling' : 'Disabling'} SSID ${ssidName} on ${radioName}`);
 
                     // Get wireless config with  UCI

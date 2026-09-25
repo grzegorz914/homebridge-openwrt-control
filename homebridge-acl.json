@@ -1,6 +1,6 @@
 {
     "homebridge": {
-        "description": "Limited homebridge access for wireless, network control and interface status",
+        "description": "Limited homebridge access for wireless, network control, interface status and wireless clients",
         "read": {
             "ubus": {
                 "network.wireless": [
@@ -11,6 +11,10 @@
                 ],
                 "system": [
                     "*"
+                ],
+                "iwinfo": [
+                    "info",
+                    "assoclist"
                 ]
             }
         },

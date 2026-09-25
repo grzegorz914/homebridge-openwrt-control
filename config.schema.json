@@ -557,6 +557,24 @@
                     "functionBody": "return model.devices[arrayIndices].mqtt.enable == true;"
                   }
                 },
+                "haDiscovery": {
+                  "title": "HA Discovery",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Publish Home Assistant MQTT discovery messages so the router appears in Home Assistant with Wi-Fi switches for radios and SSIDs, WAN status, clients, system sensors and reboot / reload buttons. For clients, channel and TX power install the updated ACL file (iwinfo).",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true;"
+                  }
+                },
+                "haWifiQr": {
+                  "title": "HA Wi-Fi QR Code",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Publish a QR code image to join each access point SSID. The QR code contains the Wi-Fi password and is published to the MQTT broker.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].mqtt.enable === true && model.devices[arrayIndices].mqtt.haDiscovery === true;"
+                  }
+                },
                 "auth": {
                   "title": "Authorization",
                   "type": "object",
@@ -825,6 +843,8 @@
                             "devices[].mqtt.clientId",
                             "devices[].mqtt.prefix",
                             "devices[].mqtt.protocolVersion",
+                            "devices[].mqtt.haDiscovery",
+                            "devices[].mqtt.haWifiQr",
                             {
                               "key": "devices[].mqtt.auth",
                               "title": "Authorization",
