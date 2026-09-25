@@ -3,6 +3,7 @@ import { join } from 'path';
 import RestFul from './restful.js';
 import Mqtt from './mqtt.js';
 import HaDiscovery from './hadiscovery.js';
+import { redactWireless } from './openwrt.js';
 
 let Accessory, Characteristic, Service, Categories, AccessoryUUID;
 
@@ -179,8 +180,10 @@ class Router extends EventEmitter {
             }
 
             // External integrations
-            if (this.restFulConnected) this.restFul1.update('info', openWrtInfo);
-            if (this.mqttConnected) await this.mqtt1.publish('Info', openWrtInfo);
+            // Wi-Fi passwords are masked, the full config stays internal (QR code)
+            const publicInfo = { ...openWrtInfo, wirelessInfo: redactWireless(openWrtInfo.wirelessInfo) };
+            if (this.restFulConnected) this.restFul1.update('info', publicInfo);
+            if (this.mqttConnected) await this.mqtt1.publish('Info', publicInfo);
             await this.haSync();
         });
     }

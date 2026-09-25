@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added: MQTT availability topic (`<prefix>/Availability`, retained `online` / `offline` last will) when HA Discovery is enabled
 - added: `iwinfo` read access in the ACL file, needed for clients, channel and TX power
 - fix: a radio or SSID command sent during a poll was dropped, commands now wait for the running poll
+- fix: the `Info` topic (MQTT and RESTful) and the wireless debug log contained the full UCI wireless config with the Wi-Fi passwords, secret options (`key`, passwords, RADIUS secrets) are now masked as `***`
 - updated dependencies
 - readme update
 

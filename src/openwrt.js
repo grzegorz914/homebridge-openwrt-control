@@ -2,6 +2,18 @@ import EventEmitter from 'events';
 import axios from 'axios';
 import ImpulseGenerator from './impulsegenerator.js';
 
+// Wi-Fi passwords and RADIUS secrets of the UCI wireless config, masked in everything published or logged
+const SecretOption = /^key[1-4]?$|pass|secret|_pwd$|^wpa_psk/i;
+export function redactWireless(wirelessInfo) {
+    if (!wirelessInfo?.values) return wirelessInfo;
+
+    const values = {};
+    for (const [section, data] of Object.entries(wirelessInfo.values)) {
+        values[section] = Object.fromEntries(Object.entries(data ?? {}).map(([option, value]) => [option, SecretOption.test(option) ? '***' : value]));
+    }
+    return { ...wirelessInfo, values };
+}
+
 class OpenWrt extends EventEmitter {
     constructor(config) {
         super();
@@ -133,7 +145,7 @@ class OpenWrt extends EventEmitter {
 
             // Wireless info
             const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' });
-            if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(wirelessInfo, null, 2)}`);
+            if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(redactWireless(wirelessInfo), null, 2)}`);
 
             // Radios list
             const radios = Object.entries(wirelessInfo?.values || {}).filter(([, data]) => data['.type'] === 'wifi-device').map(([key, data]) => {
