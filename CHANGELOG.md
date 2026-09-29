@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.2] - (29.09.2026)
+
+### Changes
+
+- fixed: Home Assistant discovery, the config and the state are published again after a restart of the broker, a broker without persistence loses the retained messages
+
 ## [0.4.1] - (25.09.2026)
 
 ### Changes

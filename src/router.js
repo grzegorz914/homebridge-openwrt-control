@@ -224,6 +224,11 @@ class Router extends EventEmitter {
                 .on('connected', msg => {
                     this.mqttConnected = true;
                     this.emit('success', msg);
+                })
+                .on('online', () => {
+                    // Every connect, the broker may have lost the retained messages after a restart
+                    this.mqttConnected = true;
+                    this.ha?.reset();
                     this.haSync();
                 })
                 .on('set', async (key, value) => {

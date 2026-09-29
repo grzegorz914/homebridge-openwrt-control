@@ -53,6 +53,13 @@ class HaDiscovery {
         }
     }
 
+    // The broker may have lost the retained messages (restart without persistence), the next sync sends everything again
+    reset() {
+        this.lastConfig = {};
+        this.lastState = '';
+        this.lastImage = {};
+    }
+
     has(suffix, available) {
         if (available) this.seen.add(suffix);
         return this.seen.has(suffix);
