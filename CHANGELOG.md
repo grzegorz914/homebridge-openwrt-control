@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.3] - (15.10.2026)
+
+### Changes
+
+- fixed: Home Assistant discovery on current OpenWrt, `network.wireless status` is refused over HTTP with invalid argument, so channel, TX power and clients per SSID were always empty. The interfaces are now matched to the SSIDs with `iwinfo` by SSID and band, `network.wireless status` is still used first where it works
+- fixed: after a router restart the cached session was unknown to the router and every call failed with `Access denied` until the session expired (up to 4 minutes), the plugin now logs in again once
+- changed: the request timeout is 10 s (was 5 s) and a read is repeated once after a network error (timeout, reset, host unreachable), commands that change the router are never repeated
+- changed: a call that the ACL of the user denies even with a fresh session is remembered, the plugin does not log in again on every poll for it
+
 ## [0.4.2] - (29.09.2026)
 
 ### Changes

@@ -14,6 +14,10 @@ export function redactWireless(wirelessInfo) {
     return { ...wirelessInfo, values };
 }
 
+// Small routers answer slowly now and then (5 s was too short for some), network errors that may pass on a second try
+const RequestTimeout = 10_000;
+const TransientErrors = new Set(['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'EHOSTUNREACH', 'ENETUNREACH', 'EPIPE']);
+
 class OpenWrt extends EventEmitter {
     constructor(config) {
         super();
@@ -32,10 +36,13 @@ class OpenWrt extends EventEmitter {
         this.extendedInfoAt = 0;
         this.sessionExpiresAt = 0;
 
+        // Calls the ACL of the user denies even with a fresh session, skipped instead of logging in again every time
+        this.aclDenied = new Set();
+
         const baseUrl = `http://${config.host}/ubus`;
         this.axiosInstance = axios.create({
             baseURL: baseUrl,
-            timeout: 5000,
+            timeout: RequestTimeout,
             headers: {
                 "Content-Type": "application/json"
             }
@@ -108,18 +115,43 @@ class OpenWrt extends EventEmitter {
         return this.sessionId;
     }
 
-    async ubusCall(service, method, params = {}) {
-        const session = await this.login();
-        const response = await this.axiosInstance.post('', {
-            jsonrpc: '2.0',
-            id: 2,
-            method: 'call',
-            params: [session, service, method, params]
-        });
+    // retry is only for reads. One more try after a network hiccup, and one new login when the router no longer knows
+    // the cached session (a restarted router answers every call with Access denied until the cached session expires)
+    async ubusCall(service, method, params = {}, retry = false) {
+        const key = `${service}.${method}`;
 
-        if (response.data?.error) throw new Error(response.data.error.message || 'Ubus call error');
+        for (let attempt = 0; ; attempt++) {
+            const session = await this.login();
 
-        return response.data.result[1];
+            let response;
+            try {
+                response = await this.axiosInstance.post('', {
+                    jsonrpc: '2.0',
+                    id: 2,
+                    method: 'call',
+                    params: [session, service, method, params]
+                });
+            } catch (error) {
+                if (retry && attempt === 0 && TransientErrors.has(error.code)) continue;
+                throw error;
+            }
+
+            const error = response.data?.error;
+            if (error) {
+                const denied = error.code === -32002 || /access denied/i.test(error.message ?? '');
+                if (denied && retry && attempt === 0 && !this.aclDenied.has(key)) {
+                    this.sessionId = null;
+                    this.sessionExpiresAt = 0;
+                    continue;
+                }
+
+                // Denied with a fresh session is the ACL, do not log in again for it on every poll
+                if (denied && retry) this.aclDenied.add(key);
+                throw new Error(error.message || 'Ubus call error');
+            }
+
+            return response.data.result[1];
+        }
     }
 
     async connect() {
@@ -127,11 +159,11 @@ class OpenWrt extends EventEmitter {
             const openWrtInfo = { state: false, info: '', linkUp: false, wan: null, systemInfo: {}, networkInfo: {}, wirelessInfo: {}, wirelessRadios: [], wirelessSsids: [], switchPorts: [], extendedInfo: null };
 
             // System info
-            const systemInfo = await this.ubusCall('system', 'board');
+            const systemInfo = await this.ubusCall('system', 'board', {}, true);
             if (this.logDebug) this.emit('debug', `System info data: ${JSON.stringify(systemInfo, null, 2)}`);
 
             // Link status
-            const networkInterfaces = await this.ubusCall('network.interface', 'dump');
+            const networkInterfaces = await this.ubusCall('network.interface', 'dump', {}, true);
             if (this.logDebug) this.emit('debug', `Network interfaces data: ${JSON.stringify(networkInterfaces, null, 2)}`);
             const interfaces = networkInterfaces?.interface || [];
             const linkUp = interfaces.some(iface => {
@@ -144,7 +176,7 @@ class OpenWrt extends EventEmitter {
             const wan = wanIface ? { up: wanIface.up === true, ipv4: wanIface['ipv4-address']?.[0]?.address ?? null } : null;
 
             // Wireless info
-            const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' });
+            const wirelessInfo = await this.ubusCall('uci', 'get', { config: 'wireless' }, true);
             if (this.logDebug) this.emit('debug', `Wireless status data: ${JSON.stringify(redactWireless(wirelessInfo), null, 2)}`);
 
             // Radios list
@@ -195,7 +227,7 @@ class OpenWrt extends EventEmitter {
             openWrtInfo.wirelessInfo = wirelessInfo;
             openWrtInfo.wirelessRadios = radios;
             openWrtInfo.wirelessSsids = ssids;
-            if (this.haDiscovery) openWrtInfo.extendedInfo = await this.getExtendedInfo();
+            if (this.haDiscovery) openWrtInfo.extendedInfo = await this.getExtendedInfo(ssids);
             
             this.emit('openWrtInfo', openWrtInfo);
 
@@ -207,13 +239,38 @@ class OpenWrt extends EventEmitter {
 
     // System info, radio channel and power, clients per SSID. Every call is optional, a router without iwinfo or
     // without the ACL for it still reports the rest. Cached for 30 s, the calls per interface are not needed every poll
-    async getExtendedInfo() {
+    // Radio interfaces (phy0-ap0) matched to the SSID sections, by SSID and band. An SSID that two interfaces of one
+    // band share is assigned in the order of the interfaces, so every section gets one interface
+    async matchInterfaces(optional, ssids) {
+        const bandOf = (frequency) => frequency < 3000 ? '2' : frequency < 5925 ? '5' : '6';
+        const devices = await optional('iwinfo', 'devices');
+        const used = new Set();
+        const matches = [];
+
+        for (const ifname of devices?.devices ?? []) {
+            const details = await optional('iwinfo', 'info', { device: ifname });
+            if (!details?.ssid) continue;
+
+            const candidates = ssids.filter(ssid => ssid.section && ssid.name === details.ssid && !used.has(ssid.section));
+            const band = bandOf(details.frequency);
+            const sameBand = candidates.filter(ssid => String(ssid.band ?? '').replace(/\D.*$/, '') === band);
+            const ssid = sameBand[0] ?? candidates.find(candidate => !candidate.band) ?? null;
+            if (!ssid) continue;
+
+            used.add(ssid.section);
+            matches.push({ radio: ssid.radio, section: ssid.section, ifname, up: true, details });
+        }
+
+        return matches;
+    }
+
+    async getExtendedInfo(ssids = []) {
         const now = Date.now();
         if (this.extendedInfo && now - this.extendedInfoAt < 30_000) return this.extendedInfo;
 
         const optional = async (service, method, params) => {
             try {
-                return await this.ubusCall(service, method, params);
+                return await this.ubusCall(service, method, params, true);
             } catch (error) {
                 if (this.logDebug) this.emit('debug', `Optional ubus call ${service} ${method} failed: ${error.message}`);
                 return null;
@@ -233,23 +290,29 @@ class OpenWrt extends EventEmitter {
             };
         }
 
-        // Interface names of the SSID sections, from the runtime wireless status
+        // Interface names of the SSID sections from the runtime wireless status. Current OpenWrt answers it with
+        // invalid argument over HTTP, then the interfaces are matched to the SSID sections by SSID and band
         const status = await optional('network.wireless', 'status');
+        const found = [];
         for (const [radio, radioStatus] of Object.entries(status ?? {})) {
-            const radioInfo = { up: radioStatus?.up === true, channel: null, txpower: null };
             for (const iface of radioStatus?.interfaces ?? []) {
-                if (!iface?.section || !iface?.ifname) continue;
-                const clients = await optional('iwinfo', 'assoclist', { device: iface.ifname });
-                info.ifaces[iface.section] = { ifname: iface.ifname, clients: Array.isArray(clients?.results) ? clients.results.length : null };
-
-                // Channel and power of the radio from its first interface
-                if (radioInfo.channel === null) {
-                    const ifaceInfo = await optional('iwinfo', 'info', { device: iface.ifname });
-                    radioInfo.channel = ifaceInfo?.channel ?? null;
-                    radioInfo.txpower = ifaceInfo?.txpower ?? null;
-                }
+                if (iface?.section && iface?.ifname) found.push({ radio, section: iface.section, ifname: iface.ifname, up: radioStatus?.up === true });
             }
-            info.radios[radio] = radioInfo;
+        }
+        if (found.length === 0) found.push(...await this.matchInterfaces(optional, ssids));
+
+        for (const { radio, section, ifname, up, details } of found) {
+            const radioInfo = info.radios[radio] ?? (info.radios[radio] = { up, channel: null, txpower: null });
+
+            const clients = await optional('iwinfo', 'assoclist', { device: ifname });
+            info.ifaces[section] = { ifname, clients: Array.isArray(clients?.results) ? clients.results.length : null };
+
+            // Channel and power of the radio from its first interface
+            if (radioInfo.channel === null) {
+                const ifaceInfo = details ?? await optional('iwinfo', 'info', { device: ifname });
+                radioInfo.channel = ifaceInfo?.channel ?? null;
+                radioInfo.txpower = ifaceInfo?.txpower ?? null;
+            }
         }
 
         if (this.logDebug) this.emit('debug', `Extended info: ${JSON.stringify(info)}`);
