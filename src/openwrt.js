@@ -116,11 +116,15 @@ class OpenWrt extends EventEmitter {
     }
 
     // retry is only for reads. One more try after a network hiccup, and one new login when the router no longer knows
-    // the cached session (a restarted router answers every call with Access denied until the cached session expires)
-    async ubusCall(service, method, params = {}, retry = false) {
+    // the cached session (a restarted router answers every call with Access denied until the cached session expires).
+    // optional marks a call a router may refuse by ACL, only such a call is remembered as denied, a required call is
+    // never given up on so a router that is still starting is read again on the next poll
+    async ubusCall(service, method, params = {}, retry = false, optional = false) {
         const key = `${service}.${method}`;
+        let renewed = false;
 
         for (let attempt = 0; ; attempt++) {
+            const cached = this.sessionId !== null && Date.now() < this.sessionExpiresAt;
             const session = await this.login();
 
             let response;
@@ -139,16 +143,22 @@ class OpenWrt extends EventEmitter {
             const error = response.data?.error;
             if (error) {
                 const denied = error.code === -32002 || /access denied/i.test(error.message ?? '');
-                if (denied && retry && attempt === 0 && !this.aclDenied.has(key)) {
+
+                // A cached session may be one the router forgot, log in again once. A call the ACL is known to refuse is skipped
+                if (denied && retry && attempt === 0 && cached && !(optional && this.aclDenied.has(key))) {
                     this.sessionId = null;
                     this.sessionExpiresAt = 0;
+                    renewed = true;
                     continue;
                 }
 
-                // Denied with a fresh session is the ACL, do not log in again for it on every poll
-                if (denied && retry) this.aclDenied.add(key);
+                // Refused with a session that was just created is the ACL, not asked again with a new login on every poll
+                if (denied && optional && !cached) this.aclDenied.add(key);
                 throw new Error(error.message || 'Ubus call error');
             }
+
+            // The router had forgotten the session, what it refused before may be allowed again
+            if (renewed) this.aclDenied.clear();
 
             return response.data.result[1];
         }
@@ -270,7 +280,7 @@ class OpenWrt extends EventEmitter {
 
         const optional = async (service, method, params) => {
             try {
-                return await this.ubusCall(service, method, params, true);
+                return await this.ubusCall(service, method, params, true, true);
             } catch (error) {
                 if (this.logDebug) this.emit('debug', `Optional ubus call ${service} ${method} failed: ${error.message}`);
                 return null;

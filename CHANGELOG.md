@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.4] - (15.10.2026)
+
+### Changes
+
+- fixed: after a restart of the router the plugin could report `Access denied` for up to 4 minutes. A call that was refused twice in a row (the router was still starting) was remembered as denied by the ACL and the plugin did not log in again. Only optional calls (`iwinfo`) are remembered now, and only when the session was created for that call, a required call is read again on the next poll
+- changed: what the ACL refused is forgotten after the session was renewed, so a changed ACL on the router is picked up without a restart of the plugin
+
 ## [0.4.3] - (15.10.2026)
 
 ### Changes
