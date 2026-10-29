@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.5] - (29.10.2026)
+
+### Changes
+
+- fixed: security, updated the locked versions of proxy-addr, follow-redirects and ip-address to fix the vulnerabilities reported by Dependabot
+
 ## [0.4.4] - (15.10.2026)
 
 ### Changes
