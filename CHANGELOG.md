@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.6] - (04.11.2026)
+
+### Changes
+
+- updated: dependencies, axios, express and mqtt to the latest versions
+
 ## [0.4.5] - (29.10.2026)
 
 ### Changes
