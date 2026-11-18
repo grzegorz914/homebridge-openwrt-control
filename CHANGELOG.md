@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After update to v0.1.0 the plugin need to be reconfigured!
 
+## [0.4.7] - (18.11.2026)
+
+### Changes
+
+- fixed: the RESTFul server tries again every 10 seconds when its port cannot be opened at the start of the plugin, a server that starts later is used by the running device
+- fixed: MQTT does not queue the messages while the broker is not connected, the plugin stops to publish when the connection to the broker is lost and starts again after it is connected
+- updated: dependencies, axios to the latest version
+
 ## [0.4.6] - (04.11.2026)
 
 ### Changes

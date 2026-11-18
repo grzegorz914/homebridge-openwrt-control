@@ -225,6 +225,9 @@ class Router extends EventEmitter {
                     this.mqttConnected = true;
                     this.emit('success', msg);
                 })
+                .on('offline', () => {
+                    this.mqttConnected = false;
+                })
                 .on('online', () => {
                     // Every connect, the broker may have lost the retained messages after a restart
                     this.mqttConnected = true;
